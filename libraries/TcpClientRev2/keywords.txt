@@ -1,0 +1,10 @@
+TcpClientRev2	KEYWORD1
+
+
+ConnectToServer	KEYWORD2
+IsConnected KEYWORD2
+write	KEYWORD2
+checkForMessages	KEYWORD2
+close	KEYWORD2
+disconnect	KEYWORD2
+
