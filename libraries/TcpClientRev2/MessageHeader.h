@@ -16,15 +16,13 @@ static unsigned int NextSequenceNumber = 1;
 
 struct MessageHeader
 {
-    MessageHeader ()
-	{
-		Sync           = SyncWord;
-		ByteCount      = 0;
-		MsgId          = -1;
-		SequenceNumber = NextSequenceNumber++;
-	}
-    
-	void IncrSequenceNumber () {SequenceNumber++; NextSequenceNumber = SequenceNumber + 1;}
+    MessageHeader ();
+	MessageHeader (unsigned char fromBytes []);
+	
+	bool ToBytes (unsigned char byteArray [], int maxLength);
+	void ToString (); // prints to console, not a character array
+	
+	//void IncrSequenceNumber () {SequenceNumber++; NextSequenceNumber = SequenceNumber + 1;}
 	
     unsigned int   Sync;
     unsigned int   ByteCount;
