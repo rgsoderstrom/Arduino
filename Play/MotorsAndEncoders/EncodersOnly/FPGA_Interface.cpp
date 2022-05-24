@@ -2,7 +2,7 @@
 //
 // FPGA_Interface.cpp
 //
-//    - messages and bit-banging to communicate with FPGA
+//    - bit-banging to communicate with FPGA
 //
 
 #include "FPGA_Interface.h"
@@ -20,9 +20,9 @@ FPGA_Interface::FPGA_Interface ()
 
 void FPGA_Interface::ConfigurePins ()
 {
-    pinMode (DataIn_Pin,     INPUT);  // bit from FPGA -> Arduino
+    pinMode (DataIn_Pin,     INPUT_PULLUP);  // bit from FPGA -> Arduino
     pinMode (ShiftInput_Pin, OUTPUT);
-    pinMode (LastBit_Pin,    INPUT);
+    pinMode (LastBit_Pin,    INPUT_PULLUP);
     pinMode (FirstBit_Pin,   INPUT_PULLUP);
 
     pinMode (DataOut_Pin,     OUTPUT); // bit from Arduino -> FPGA
@@ -66,51 +66,49 @@ void FPGA_Interface::InterruptHandler ()
 
 //*******************************************************************
 
-const int BitsPerUnsignedLong = 32; // only used to end loop if no "lastBit" read
+// Shift in one byte, MSB first
 
-unsigned long FPGA_Interface::ReadOneWord ()
-{    
-    unsigned long data = 0;
+byte FPGA_Interface::ReadOneByte ()
+{
+	byte receivedByte = 0;
 
-    //
-    // this loop should always end with "break". i == BitsPerUnsignedLong is an error
-    //
-    for (int i=0; i<BitsPerUnsignedLong; i++) 
-    {
-        int b = digitalRead (DataIn_Pin);
-        b &= 1;
+	for (int i=0; i<8; i++)
+	{
+		int b = digitalRead (DataIn_Pin);
+		b &= 1;
 
-        data <<= 1;
-        data |= b;
+		if (b != 0)
+			receivedByte |= (1 << (7 - i));
 
-        int done = digitalRead (LastBit_Pin);
-        
-        digitalWrite (ShiftInput_Pin, 1);
-        digitalWrite (ShiftInput_Pin, 0);    
-
-        if (done & 1)
-            break;
-    }
+		digitalWrite (ShiftInput_Pin, 1);
+		digitalWrite (ShiftInput_Pin, 0);    
+	}
   
-    return data;
+	return receivedByte;
 }
   
 //*******************************************************************
 
 // Shift out one byte, MSB first
 
-void FPGA_Interface::WriteOneByte (byte b)
+void FPGA_Interface::WriteOneByte (unsigned char b)
 {
-  for (int i=0; i<8; i++)
-  {
-    int mask = 1 << (7 - i);
-    int thisBit = (b & mask) == 0 ? 0 : 1;
+	for (int i=0; i<8; i++)
+	{
+		int mask = 1 << (7 - i);
+		int thisBit = (b & mask) == 0 ? 0 : 1;
 
-    digitalWrite (DataOut_Pin, thisBit == 0 ? 0 : 1);
-    digitalWrite (ReadInput_Pin, 1);
-    digitalWrite (ReadInput_Pin, 0);
-  }
+		digitalWrite (DataOut_Pin, thisBit == 0 ? 0 : 1);
+		digitalWrite (ReadInput_Pin, 1);
+		digitalWrite (ReadInput_Pin, 0);
+	}
 
-  digitalWrite (DataOutDone_Pin, 1);
-  digitalWrite (DataOutDone_Pin, 0);
+	digitalWrite (DataOutDone_Pin, 1);
+	digitalWrite (DataOutDone_Pin, 0);
+}
+
+void FPGA_Interface::WriteBytes (unsigned char *bytes, int count)
+{
+    for (int i=0; i<count; i++)
+      WriteOneByte (bytes [i]);  
 }
