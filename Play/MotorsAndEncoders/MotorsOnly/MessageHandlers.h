@@ -6,8 +6,10 @@
 #ifndef MESSAGEHANDLERS_H
 #define MESSAGEHANDLERS_H
 
+#include <FPGA_Interface.h>
+#include <FPGA_MsgBytes.h>
+
 #include "MotorBoard.h"
-#include "FPGA_Interface.h"
 #include "Messages.h"
 
 class MessageHandlers

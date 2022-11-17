@@ -52,6 +52,8 @@ class JobQueue
     bool Add (Method, MethodArg, unsigned long startDelay);
 
     void RunJobs (unsigned long now);
+	
+	void Clear ();
   
   private:
     static const int NumberAperiodicJobs = 8;
@@ -78,6 +80,7 @@ class PeriodicJobQueue
               unsigned long startDelay, // wait this many millis before first invocation
               unsigned long lifetime);  // millis
 
+	void Clear ();
     bool Remove (char *name);
 
     void RunJobs (unsigned long now);

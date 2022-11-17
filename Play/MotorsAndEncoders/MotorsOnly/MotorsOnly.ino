@@ -1,14 +1,14 @@
 
 //
-// Motors and drive wheel encoders on chassis. Passed a speed vs. time profile for each motor, runs it
-// and sends the measured motor speeds back to PC
+// MotorsOnly. Passed a speed vs. time profile for each motor ans runs it.
 //
 
 #include <TcpClientRev2.h>
 #include <JobQueue.h>
+#include <FPGA_Interface.h>
 
 #include "MotorBoard.h"
-#include "FPGA_Interface.h"
+#include "FPGA_Messages.h"
 #include "Messages.h"
 #include "MessageHandlers.h"
 

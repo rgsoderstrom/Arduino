@@ -54,6 +54,16 @@ bool JobQueue::Add (Method job, MethodArg arg, unsigned long delayTime)
 
 //*****************************************************************************************************
 
+void JobQueue::Clear ()
+{
+    for (int i=0; i<NumberAperiodicJobs; i++)
+    {
+		jobs [i].method = NULL;
+    }
+}
+
+//*****************************************************************************************************
+
 // RunJobs - check scheduled time of all in queue. Run any scheduled for now or in the past
 
 void JobQueue::RunJobs (unsigned long now)
@@ -132,6 +142,16 @@ bool PeriodicJobQueue::Add (Method    task,
     }
 
     return false;
+}
+
+//*****************************************************************************************************
+
+void PeriodicJobQueue::Clear ()
+{
+    for (int i=0; i<NumberPeriodicJobs; i++)
+    {
+		jobs [i].method = NULL;
+    }
 }
 
 //*****************************************************************************************************

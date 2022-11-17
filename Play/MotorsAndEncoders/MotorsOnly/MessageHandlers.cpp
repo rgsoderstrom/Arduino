@@ -5,6 +5,8 @@
 
 #include <Arduino.h>
 #include <TcpClientRev2.h>
+#include <FPGA_Interface.h>
+
 #include "FPGA_Messages.h"
 #include "MessageHandlers.h"
 

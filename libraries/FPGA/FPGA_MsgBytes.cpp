@@ -9,7 +9,8 @@
 #include "FPGA_MsgBytes.h"
 
 unsigned char FPGA_MsgBytes::SyncByte = 0xAB;
-unsigned int  FPGA_MsgBytes::ByteCountOffset = 2;
+unsigned int  FPGA_MsgBytes::FpgaMsgIdOffset = 1;
+unsigned int  FPGA_MsgBytes::FpgaByteCountOffset = 2;
 
 FPGA_MsgBytes::FPGA_MsgBytes ()
 {
@@ -20,7 +21,7 @@ void FPGA_MsgBytes::Clear ()
 {
 	put = 0;
 	state = WaitingForSync;
-	byteBuffer [ByteCountOffset] = 255;
+	byteBuffer [FpgaByteCountOffset] = 255;
 }
 
 FPGA_MsgBytes::BufferState FPGA_MsgBytes::StoreByte (unsigned char newByte)
@@ -40,7 +41,7 @@ FPGA_MsgBytes::BufferState FPGA_MsgBytes::StoreByte (unsigned char newByte)
 			if (put < BufferSize) 
 				byteBuffer [put++] = newByte;
 			
-			if (put == byteBuffer [ByteCountOffset])
+			if (put == byteBuffer [FpgaByteCountOffset])
 				state = MsgComplete;
 			
 			break;
@@ -55,7 +56,7 @@ FPGA_MsgBytes::BufferState FPGA_MsgBytes::StoreByte (unsigned char newByte)
 	return state;
 }
 
-unsigned char FPGA_MsgBytes::GetBytes ()
+unsigned char *FPGA_MsgBytes::GetBytes ()
 {
 	return byteBuffer;
 }

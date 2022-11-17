@@ -4,38 +4,72 @@
 //
 
 #include <JobQueue.h>
+#include <FPGA_MsgBytes.h>
 #include "FPGA_Messages.h"
 #include "FPGA_Interface.h"
 
 JobQueue OneTimeJobs;
 
 FPGA_Interface fpgaInterface;
+FPGA_MsgBytes  msgByteBuffer;
 
 HeaderMessage StartCollection (StartCollectionMsgID);
 HeaderMessage StopCollection  (StopCollectionMsgID);
 HeaderMessage BuildCollMsg    (BuildCollMsgID);
 HeaderMessage SendCollMsg     (SendCollMsgID);
 
-byte ReceivedBytes [100];
 char obuf [50];
 
-void ReadAndPrintByte ()
+//****************************************************
+
+void ProcessMessageBytes ()
+{
+    EncoderCountsMessage *msg = (EncoderCountsMessage *) msgByteBuffer.GetBytes ();
+
+    bool messageIsFull = msg->Fields.remaining >= EncoderCountsMessage::MaxSamplesPerMessage;
+    
+    int printLoopCount = messageIsFull 
+                       ? EncoderCountsMessage::MaxSamplesPerEncoder 
+                       : msg->Fields.remaining / 2; // each loop prints two
+
+    sprintf (obuf, "Remaining = %d", msg->Fields.remaining);
+    Serial.println (obuf);
+
+    for (int i=0; i<printLoopCount; i++)
+    {
+        sprintf (obuf, "%x, %x", msg->Fields.samples [i][0], msg->Fields.samples [i][1]);
+        Serial.println (obuf);
+    }
+
+    msgByteBuffer.Clear ();
+    
+    if (msg->Fields.remaining > 0)
+    {
+        fpgaInterface.WriteBytes (BuildCollMsg.GetBytePtr (), BuildCollMsg.GetByteCount ());
+        fpgaInterface.WriteBytes (SendCollMsg.GetBytePtr (), SendCollMsg.GetByteCount ());
+    }
+}
+
+//****************************************************
+
+void ReadOneByte ()
 {
 	  noInterrupts ();
-	
-  	unsigned char c = fpgaInterface.ReadOneByte ();
+    
+    FPGA_MsgBytes::BufferState state = msgByteBuffer.StoreByte (fpgaInterface.ReadOneByte ());
 
-    sprintf (obuf, "0x%x %d", c, c);
-    Serial.println (obuf); 
-
+    if (state == FPGA_MsgBytes::BufferState::MsgComplete)
+        OneTimeJobs.Add (ProcessMessageBytes, NULL);     
+    
 	  interrupts ();
 }
 
+//****************************************************
+
 void InterruptCallbackFcn ()
 {
-	OneTimeJobs.Add (ReadAndPrintByte, NULL);
+	OneTimeJobs.Add (ReadOneByte, NULL);
 }
-
 
 void setup (void) 
 {
@@ -57,8 +91,6 @@ void setup (void)
 
 	  // send BuildCollection message
     fpgaInterface.WriteBytes (BuildCollMsg.GetBytePtr (), BuildCollMsg.GetByteCount ());
-    fpgaInterface.WriteBytes (BuildCollMsg.GetBytePtr (), BuildCollMsg.GetByteCount ());
-    fpgaInterface.WriteBytes (BuildCollMsg.GetBytePtr (), BuildCollMsg.GetByteCount ());
     
     interrupts ();
 		
@@ -70,5 +102,4 @@ void setup (void)
 void loop(void) 
 {
     OneTimeJobs.RunJobs (millis ());
-
 }

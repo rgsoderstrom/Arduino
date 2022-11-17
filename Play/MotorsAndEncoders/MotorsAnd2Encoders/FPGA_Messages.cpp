@@ -3,8 +3,11 @@
 // FPGA_Messages.cpp
 //
 
+#include <TcpClientRev2.h>
 #include <FPGA_MsgBytes.h>
 #include "FPGA_Messages.h"
+
+#include "Messages.h"
 
 ProfileMessage::ProfileMessage ()
 {
@@ -36,6 +39,16 @@ HeaderMessage::HeaderMessage (byte id)
 //************************************************************************
 //************************************************************************
 
+extern TcpClientRev2 socket;
+
 EncoderCountsMessage::EncoderCountsMessage ()
 {
+    TextMessage msg ("encoder counts");
+    socket.write ((char *) &msg, msg.ByteCount ());  
+
+//    if (remaining > 16)
+//    {
+//        fpgaPtr->WriteBytes (BuildCollMsg.GetBytePtr (), BuildCollMsg.GetByteCount ());
+//        fpgaPtr->WriteBytes (SendCollMsg.GetBytePtr (),  SendCollMsg.GetByteCount ());
+//    }
 }

@@ -18,10 +18,12 @@ class FPGA_MsgBytes
         FPGA_MsgBytes ();
         void Clear ();
         BufferState StoreByte (unsigned char ch);
-        unsigned char GetBytes ();
+		unsigned char GetMsgID () {return byteBuffer [FpgaMsgIdOffset];}
+        unsigned char *GetBytes ();
 		
 		static unsigned char SyncByte;
-		static unsigned int ByteCountOffset;
+		static unsigned int  FpgaMsgIdOffset; // offset in FPGA messages
+		static unsigned int  FpgaByteCountOffset;
 		
     private:
         static const int BufferSize = 64;

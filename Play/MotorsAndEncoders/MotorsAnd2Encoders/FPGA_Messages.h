@@ -19,8 +19,8 @@
 #define RunProfileMsgID   3
 #define StopProfileMsgID  4
 
-#define StartCollectionMsgID 5
-#define StopCollectionMsgID  6
+#define fpgaStartCollectionMsgID 5
+#define fpgaStopCollectionMsgID  6
 #define BuildCollMsgID       7
 #define SendCollMsgID        8
 
@@ -34,38 +34,38 @@ union ProfileMessage
     
     static const int NumbMotors = 2;
     static const int MaxNumbSegments = 5;
-    static const int NumbParameters = 2; // one unsigned char for each of speed & duration
+    static const int NumbParameters = 2; // one byte for each of speed & duration
 
     //
     // member data
     //
-    unsigned char ByteStream [1];
+    byte ByteStream [1];
 
     struct
     {
-        unsigned char sync;
-        unsigned char id;
-        unsigned char byteCount;
-        unsigned char profile [MaxNumbSegments][NumbMotors][NumbParameters];
+        byte sync;
+        byte id;
+        byte byteCount;
+        byte profile [MaxNumbSegments][NumbMotors][NumbParameters];
     } Fields; 
 };
 
 union HeaderMessage
 {
-    HeaderMessage (unsigned char id);
+    HeaderMessage (byte id);
     int GetByteCount () {return Fields.byteCount;}
 	  unsigned char *GetBytePtr () {return ByteStream;}
 
     //
     // member data
     //
-    unsigned char ByteStream [1];
+    byte ByteStream [1];
 
     struct
     {
-        unsigned char sync;
-        unsigned char id;
-        unsigned char byteCount;
+        byte sync;
+        byte id;
+        byte byteCount;
     } Fields;
 };
 
@@ -80,10 +80,10 @@ union EncoderCountsMessage
     EncoderCountsMessage ();
     void Clear ();
     int  GetByteCount () {return Fields.byteCount;}
-	unsigned char *GetBytePtr () {return ByteStream;}
+	  unsigned char *GetBytePtr () {return ByteStream;}
     
     static const int NumbEncoders = 2;
-	static const int MaxSamplesPerEncoder = 16;
+	  static const int MaxSamplesPerEncoder = 16;
     static const int MaxSamplesPerMessage = NumbEncoders * MaxSamplesPerEncoder;
 
     //
@@ -98,7 +98,7 @@ union EncoderCountsMessage
         unsigned char byteCount;
 		    unsigned char sequence;
 
-        unsigned int  remaining; // includes thosein this message
+        unsigned int  remaining; // includes those in this message
 		
         unsigned char samples [MaxSamplesPerEncoder][NumbEncoders];
     } Fields; 

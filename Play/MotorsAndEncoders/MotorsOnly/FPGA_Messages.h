@@ -14,7 +14,6 @@
 // Arduino to FPGA
 //
 
-#define SyncByte         0xAB
 #define ClearProfileMsgID 1
 #define LoadProfileMsgID  2
 #define RunProfileMsgID   3

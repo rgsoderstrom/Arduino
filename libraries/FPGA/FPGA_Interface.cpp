@@ -13,7 +13,7 @@ FPGA_Interface *FPGA_Interface::thisPtr = NULL;
 FPGA_Interface::FPGA_Interface ()
 {
     thisPtr = this;
-    callback = NULL; // InterruptCallback
+    callback = NULL; // Interrupt Callback
 }
 
 //*******************************************************************
@@ -33,6 +33,8 @@ void FPGA_Interface::ConfigurePins ()
     digitalWrite (DataOut_Pin,     0);
     digitalWrite (ReadInput_Pin,   0);
     digitalWrite (DataOutDone_Pin, 0);  
+	
+	pinMode (ProfileDone_Pin, INPUT_PULLUP); // MotorsAndEncoders only
 }
 
 

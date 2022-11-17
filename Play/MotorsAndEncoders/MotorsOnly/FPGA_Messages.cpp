@@ -3,11 +3,12 @@
 // FPGA_Messages.cpp
 //
 
+#include <FPGA_MsgBytes.h>
 #include "FPGA_Messages.h"
 
 ProfileMessage::ProfileMessage ()
 {
-    Fields.sync      = SyncByte;
+    Fields.sync      = FPGA_MsgBytes::SyncByte;
     Fields.id        = LoadProfileMsgID;
     Fields.byteCount = sizeof (ProfileMessage);
     Clear ();
@@ -26,7 +27,7 @@ void ProfileMessage::Clear ()
 
 HeaderMessage::HeaderMessage (byte id)
 {
-    Fields.sync      = SyncByte;
+    Fields.sync      = FPGA_MsgBytes::SyncByte;
     Fields.id        = id;
     Fields.byteCount = sizeof (HeaderMessage);
 }
