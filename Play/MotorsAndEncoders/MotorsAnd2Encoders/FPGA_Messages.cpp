@@ -13,7 +13,7 @@ ProfileMessage::ProfileMessage ()
 {
     Fields.sync      = FPGA_MsgBytes::SyncByte;
     Fields.id        = LoadProfileMsgID;
-    Fields.byteCount = sizeof (ProfileMessage);
+    Fields.byteCount = 3; // increases as segments added
     Clear ();
 }
 

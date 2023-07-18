@@ -31,6 +31,9 @@ void MessageHandlers::SpeedProfileSegmentMsgHandler (byte msgBytes [])
     profileMessage.Fields.profile [msg->GetIndex ()][select][0] = msg->GetSpeed ();
     profileMessage.Fields.profile [msg->GetIndex ()][select][1] = msg->GetDuration ();
 
+    // assumes fields received sequentially and are never over-written
+    profileMessage.Fields.byteCount += 2;
+        
     delete msg;
 }
 
@@ -42,17 +45,10 @@ void MessageHandlers::ClearMotorProfileMsgHandler (byte msgBytes [])
     
     profileMessage.Clear ();
 
-    HeaderMessage *msg = new HeaderMessage (ClearProfileMsgID);
-
-    for (int i=0; i<msg->GetByteCount (); i++)
-    {
-        fpgaPtr->WriteOneByte (msg->ByteStream [i]);
-        //Serial.println (msg->ByteStream [i]);
-    }
-    
-    delete msg;
-
-
+//    for (int i=0; i<profileMessage.GetByteCount (); i++)
+//    {
+//        fpgaPtr->WriteOneByte (profileMessage.ByteStream [i]);
+//    }
     
     statusDataPtr->SetReadyToRun (false);
     StatusMessage statusMsg (statusDataPtr);

@@ -33,7 +33,7 @@ union ProfileMessage
     int  GetByteCount () {return Fields.byteCount;}
     
     static const int NumbMotors = 2;
-    static const int MaxNumbSegments = 5;
+    static const int MaxNumbSegments = 12;
     static const int NumbParameters = 2; // one byte for each of speed & duration
 
     //
@@ -45,7 +45,7 @@ union ProfileMessage
     {
         byte sync;
         byte id;
-        byte byteCount;
+        byte byteCount; // variable, depending on number of segments
         byte profile [MaxNumbSegments][NumbMotors][NumbParameters];
     } Fields; 
 };
