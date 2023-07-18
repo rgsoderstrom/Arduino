@@ -8,6 +8,8 @@
 // This version for Arduino Uno WIFI Rev 2 board
 //
 
+#include <Secret.h> // network and socket names and encryption key
+
 #include "TcpClientRev2.h"
 
 #define MaxAttempts     5
@@ -18,6 +20,65 @@
 
 TcpClientRev2::TcpClientRev2 ()
 {
+    int retryCounter = 5;
+    bool success = false;
+	
+    Serial.print (F("Connecting to network "));
+    Serial.print (SSID);
+    
+    do 
+    {
+        success = TcpClientRev2::ConnectToNetwork (SSID, PASS);
+        if (success == false) Serial.print (F("."));
+    
+    } while ((success == false) && (retryCounter-- > 0));
+
+    if (success)
+        Serial.println (F(" succeeded"));
+    else
+    {
+        Serial.println (F(" failed, stopping"));
+
+        while (1)
+        ;
+    }
+    
+  //******************************************************************
+
+    Serial.println (F("Get server address"));
+    IPAddress ipa;
+    success = WiFi.hostByName (server, ipa); // returns 1 if successful
+
+    if (success)
+    {
+        Serial.print ("Server address: ");
+        Serial.println (ipa);
+    }
+    else
+    {
+        Serial.println (F(" failed to get server address, stopping"));
+        while (1)
+        ;
+    }
+    
+    Serial.println (F("Connecting to server"));
+    retryCounter = 5;
+    
+    do
+    {
+        success = ConnectToServer (server, 11000);
+        if (success == false) Serial.print (F("."));
+    
+    } while ((success == false) && (retryCounter-- > 0));
+
+    if (success)
+        Serial.println (F(" succeeded"));
+    else
+    {
+        Serial.println (F(" failed, stopping"));
+        while (1)
+        ;
+    }
 }
 
 //**************************************************************************************************
