@@ -8,9 +8,9 @@
 
 #include "FPGA_MsgBytes.h"
 
-unsigned char FPGA_MsgBytes::SyncByte = 0xAB;
-unsigned int  FPGA_MsgBytes::FpgaMsgIdOffset = 1;
-unsigned int  FPGA_MsgBytes::FpgaByteCountOffset = 2;
+unsigned char FPGA_MsgBytes::SyncByte1 = 0x34; // sync pattern = 0x1234
+unsigned char FPGA_MsgBytes::SyncByte2 = 0x12;
+unsigned char FPGA_MsgBytes::HeaderSize = 8;
 
 FPGA_MsgBytes::FPGA_MsgBytes ()
 {
@@ -19,44 +19,71 @@ FPGA_MsgBytes::FPGA_MsgBytes ()
 
 void FPGA_MsgBytes::Clear ()
 {
-	put = 0;
-	state = WaitingForSync;
-	byteBuffer [FpgaByteCountOffset] = 255;
+	ByteBuffer.Packed.Put = 0;
+	state = WaitingForSync1;
 }
 
 FPGA_MsgBytes::BufferState FPGA_MsgBytes::StoreByte (unsigned char newByte)
 {
+	// short aliases for ByteBuffer members
+	int& put = ByteBuffer.Packed.Put;
+	unsigned char *byteArray = ByteBuffer.Packed.ByteArray;
+	
 	switch (state)
 	{
-		case WaitingForSync: 
-			if (newByte == SyncByte)
+		case WaitingForSync1: 
+			if (newByte == SyncByte1)
 			{
-				byteBuffer [0] = newByte;
+				byteArray [0] = newByte;
 				put = 1;
-				state = InMessage;
+				state = VerifySyncByte2;
+			}
+			break;
+
+		case VerifySyncByte2: 
+			if (newByte == SyncByte2)
+			{
+				byteArray [put++] = newByte;
+				state = InHeader;
+			}
+			else
+			{
+				state = WaitingForSync1;
 			}
 			break;
 		
-		case InMessage: 
-			if (put < BufferSize) 
-				byteBuffer [put++] = newByte;
+		case InHeader: 
+			byteArray [put++] = newByte;
 			
-			if (put == byteBuffer [FpgaByteCountOffset])
+			// don't look at header content until we have the whole thing
+			if (put == HeaderSize)
+			{
+				if (GetByteCount () == HeaderSize)
+				    state = MsgComplete;
+				else
+					state = InMsgData;			
+			}
+			
+			break;
+					
+		case InMsgData: 
+			if (put < BufferSize) 
+				byteArray [put++] = newByte;
+			else
+				state = WaitingForSync1;
+			
+			if (put == GetByteCount ())
 				state = MsgComplete;
 			
 			break;
 			
-		case MsgComplete:
+		case MsgComplete: // stays here until Clear () invoked
 			break;
 			
 		default:
+			state = WaitingForSync1;
 			break;
 	}
-	
 	return state;
 }
 
-unsigned char *FPGA_MsgBytes::GetBytes ()
-{
-	return byteBuffer;
-}

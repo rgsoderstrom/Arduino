@@ -28,8 +28,6 @@ class FPGA_Interface
     
 	void WriteBytes (unsigned char *b, int count); // to FPGA
 	
-	int GetProfileDonePin () {return digitalRead (ProfileDone_Pin);} // for MotorsAndEncoders only
-    
   private:
     static FPGA_Interface *thisPtr;
     static void InterruptHandler ();
@@ -48,8 +46,6 @@ class FPGA_Interface
     static const int DataOut_Pin     = A5; // shifted in to FPGA
     static const int ReadInput_Pin   = 6;  // tells FPGA to read input bit
     static const int DataOutDone_Pin = 5;  // tells FPGA last bit of word hase been read
-	
-	static const int ProfileDone_Pin = 11;//A1; // for MotorsAndEncoders only
 };
 
 #endif

@@ -33,8 +33,6 @@ void FPGA_Interface::ConfigurePins ()
     digitalWrite (DataOut_Pin,     0);
     digitalWrite (ReadInput_Pin,   0);
     digitalWrite (DataOutDone_Pin, 0);  
-	
-	pinMode (ProfileDone_Pin, INPUT_PULLUP); // MotorsAndEncoders only
 }
 
 
