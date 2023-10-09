@@ -2,22 +2,40 @@
 // RS422Loopback - WiFi version
 //
 
+#include <JobQueue.h>
 #include <TcpClientRev2.h>
+#include <FPGA_Interface.h>
+#include <FPGA_MsgBytes.h>
 
+#include "LoopbackTestFPGA.h"
 #include "MessageHandlers.h"
 #include "src/MessageIDs.h"
 #include "src/AcknowledgeMessage.h"
 #include "src/TextMessage.h"
 #include "src/StatusMessage.h"
 
-TcpClientRev2 *socketPtr; // Client socket that will connect to PC
+JobQueue OneTimeJobs;
+
+//
+// Client socket that will connect to PC
+//
+TcpClientRev2 *socketPtr; 
+
+//
+// FPGA Interface
+//
+FPGA_MsgBytes  fpgaByteBuffer; // accumulate bytes received from FPGA here
+FPGA_Interface fpgaInterface;
+
+// Loopback test needs this to send bytes to FPGA
+FPGA_Interface *LoopbackTestFPGA::fpgaInterfacePtr = &fpgaInterface;
 
 //
 // System Status stored here, to be sent to PC
 //
 StatusMessage statusMsg;
 
-char *ThisName = "Ard 1";
+char *ThisName = "Arduino & FPGA";
 
 //
 // MessageHandler
@@ -28,9 +46,19 @@ void setup()
 {
     Serial.begin (9600);
     Serial.println ();
-	
-	  socketPtr = new TcpClientRev2 ();
+	  OneTimeJobs.Clear ();
    
+	  socketPtr = new TcpClientRev2 ();
+
+    //**********************************************************************
+    
+    fpgaByteBuffer.Clear ();
+    fpgaInterface.ConfigurePins ();
+    fpgaInterface.AttachInterrupt ();
+    fpgaInterface.RegisterInterruptCallback (InterruptCallbackFcn);
+ 
+    //**********************************************************************
+    
     messageHandler.Initialize (&statusMsg, socketPtr);
 
     // tell laptop that Arduino is ready, with a text message and a status message
@@ -41,15 +69,15 @@ void setup()
     statusMsg.SetDataReceived (false);
     statusMsg.SetDataReady (false);
     socketPtr->write ((char *) &statusMsg, statusMsg.ByteCount ());
-    
-    interrupts ();    
 }
 
-#define MaxMessageBytes 64
+#define MaxMessageBytes 256
 char messageBytes [MaxMessageBytes];
 
 void loop() 
 {
+    OneTimeJobs.RunJobs (millis ());
+    
     noInterrupts ();
     bool isConnected = socketPtr->IsConnected ();
     interrupts ();
@@ -64,23 +92,55 @@ void loop()
         {
             MessageHeader *header = (MessageHeader *) messageBytes;
 
-            Serial.print ("MessageID ");
+            Serial.print ("PC MessageID ");
             Serial.println (header->MsgId);
             
             switch (header->MsgId)
             {                
-                case StatusRequestMsgId:   messageHandler.StatusRequestMsgHandler           (messageBytes); break;
-                case LoopbackDataMsgId:    messageHandler.LoopbackDataMsgHandler            (messageBytes); break;
-                case RunLoopbackTestMsgId: messageHandler.RunLoopbackTestMsgHandler         (messageBytes); break;               
-                case SendLoopbackDataMsgId:messageHandler.SendLoopbackTestResultsMsgHandler (messageBytes); break;
+                case StatusRequestMsgId:    messageHandler.StatusRequestMsgHandler           (messageBytes); break;
+                case LoopbackDataMsgId:     messageHandler.LoopbackDataMsgHandler            (messageBytes); break;
+                case RunLoopbackTestMsgId:  messageHandler.RunLoopbackTestMsgHandler         (messageBytes); break;               
+                case SendLoopbackDataMsgId: messageHandler.SendLoopbackTestResultsMsgHandler (messageBytes); break;
 
-                
                 case KeepAliveMsgId:  /*Serial.println ("KeepAliveMsgId");*/  break;
 //                default:  /*Serial.println ("???");*/ break;
             }
 
-            AcknowledgeMessage ack (header->SequenceNumber);
+            AcknowledgeMsg ack (header->SequenceNumber);
             socketPtr->write ((char *) &ack, ack.ByteCount ());
         }
     }
+}
+
+//***********************************************************************************
+
+void InterruptProcessing (void *ptr)
+{
+    unsigned char ch = fpgaInterface.ReadOneByte ();
+    Serial.print ("Int: 0x");
+    Serial.println ((int) ch, HEX); 
+
+    fpgaByteBuffer.StoreByte (ch);
+
+    if (fpgaByteBuffer.MessageComplete ())
+    {
+        Serial.print ("FPGA Message ID ");
+        Serial.print (fpgaByteBuffer.GetMessageID ());
+        Serial.println (" received from FPGA");
+
+        // forward message on to PC
+        if (fpgaByteBuffer.GetMessageID () == 100)
+          socketPtr->write (fpgaByteBuffer.GetMsgBytes (), fpgaByteBuffer.GetByteCount ());
+
+        // prepare for next message
+        fpgaByteBuffer.Clear ();              
+    }
+}
+
+//
+// Interrupt Callback - called when FPGA has a byte to send
+//
+void InterruptCallbackFcn ()
+{
+    OneTimeJobs.Add (InterruptProcessing, NULL);
 }

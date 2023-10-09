@@ -6,18 +6,19 @@
 #ifndef LOOPBACK_TEST_FPGA_H
 #define LOOPBACK_TEST_FPGA_H
 
-#include "src/LoopbackDataMessage.h"
+#include <FPGA_Interface.h>
+//#include <FPGA_MsgBytes.h>
 
 class LoopbackTestFPGA
 {
     public:
-        LoopbackTestFPGA (LoopbackDataMsg::Data data);
-        void RunTest ();
-        LoopbackDataMsg::Data& GetResults ();
+        LoopbackTestFPGA (byte msgBytes []);
+        void RunTest     (byte msgBytes []);
+        void SendResults (byte msgBytes []);
         
-    private:
-        LoopbackDataMsg::Data testInput;
-        LoopbackDataMsg::Data testOutput;
+    protected:
+//    static FPGA_MsgBytes  *fpgaByteBufferPtr;
+      static FPGA_Interface *fpgaInterfacePtr;
 };
 
 #endif

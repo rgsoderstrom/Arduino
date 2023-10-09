@@ -41,8 +41,16 @@ bool MessageHeader::ToBytes (unsigned char byteArray [], int maxLength)
 
 void MessageHeader::ToString ()
 {
+	Serial.println ("ToString deprecated, use ToConsole");
+	ToConsole ();
+}
+
+void MessageHeader::ToConsole ()
+{
     Serial.print ("Sync        = ");  Serial.println (Sync, HEX);
     Serial.print ("Byte Count  = ");  Serial.println (ByteCount);//, HEX);
     Serial.print ("MsgId       = ");  Serial.println (MsgId);//, HEX);
     Serial.print ("Seq. Number = ");  Serial.println (SequenceNumber);//, HEX);    
 }
+
+

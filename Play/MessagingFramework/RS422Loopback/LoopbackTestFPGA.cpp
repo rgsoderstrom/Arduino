@@ -3,55 +3,48 @@
 // LoopbackTestFPGA.cpp
 //
 
+#include "MessageHeader.h"
 #include "LoopbackTestFPGA.h"
 
-LoopbackTestFPGA::LoopbackTestFPGA (LoopbackDataMsg::Data receivedData)
+
+//unsigned char LoadDataMsgBytes [] = {0x34, 0x12, 32, 0, 0x64, 0, 1, 0, 
+//                                     1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0};
+//
+//unsigned char RunProcMsgBytes []  = {0x34, 0x12, 8, 0, 0x65, 0, 2, 0};
+//
+//unsigned char SendDataMsgBytes [] = {0x34, 0x12, 8, 0, 0x66, 0, 3, 0};
+//
+
+LoopbackTestFPGA::LoopbackTestFPGA (byte msgBytes [])
 {  
-    testInput.source = receivedData.source;
-    testInput.dataByteCount = receivedData.dataByteCount;
+//  int byteCount = (msgBytes [3] << 8) + msgBytes [2];
+    int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
 
-    for (int i=0; i<receivedData.dataByteCount; i++)
-        testInput.dataBytes [i] = receivedData.dataBytes [i];
-
-    pinMode (A2, INPUT);
-    pinMode (A3, OUTPUT);
-    pinMode (A4, INPUT);
-    pinMode (A5, OUTPUT);
-
-    pinMode (2, INPUT);
-    pinMode (3, INPUT);
-    pinMode (5, OUTPUT);
-    pinMode (6, OUTPUT);
-        
+    Serial.println ("Passing PC LoadDataMsgBytes msg to FPGA");
+    Serial.print (byteCount);
+    Serial.println (" bytes");
+    
+    fpgaInterfacePtr->WriteBytes (msgBytes, byteCount);
 }
 
-void LoopbackTestFPGA::RunTest ()
+void LoopbackTestFPGA::RunTest (byte msgBytes [])
 {
-    testOutput.dataByteCount = 0;
+    int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
     
-    for (int i = 0; i < testInput.dataByteCount; i++)
-    {
-        int nybble = testInput.dataBytes [i] & 0xf;
-        
-        digitalWrite (A3, (nybble & 1) != 0);  
-        digitalWrite (A5, (nybble & 2) != 0);  
-        digitalWrite (5,  (nybble & 4) != 0);  
-        digitalWrite (6,  (nybble & 8) != 0);  
-
-        int bit0 = digitalRead (A2);
-        int bit1 = digitalRead (2);
-        int bit2 = digitalRead (A4);
-        int bit3 = digitalRead (3);
-
-        byte readByte = (bit3 << 7) | (bit2 << 6) | (bit1 << 5) | (bit0 << 4); 
-        
-        testOutput.dataBytes [testOutput.dataByteCount++] = readByte;
-    }
-
-    testOutput.source = testInput.source + 20;
+    Serial.println ("Passing PC RunTest msg to FPGA");
+    Serial.print (byteCount);
+    Serial.println (" bytes");
+    
+    fpgaInterfacePtr->WriteBytes (msgBytes, byteCount);
 }
   
-LoopbackDataMsg::Data& LoopbackTestFPGA::GetResults ()
+void LoopbackTestFPGA::SendResults (byte msgBytes [])
 {
-    return testOutput;
+    int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
+    
+    Serial.println ("Passing PC SendResults msg to FPGA");
+    Serial.print (byteCount);
+    Serial.println (" bytes");
+    
+    fpgaInterfacePtr->WriteBytes (msgBytes, byteCount);
 }

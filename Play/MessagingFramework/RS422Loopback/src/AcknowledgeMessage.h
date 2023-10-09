@@ -6,28 +6,16 @@
 #ifndef ACK_MESSAGE_H
 #define ACK_MESSAGE_H
 
-#include <Arduino.h>
-#include "MessageIDs.h"
-#include "MessageHeader.h"
+#include "AcknowledgeMsg_Auto.h"
 
-class AcknowledgeMessage
+class AcknowledgeMsg : public AcknowledgeMsg_Auto
 {
-    struct AckData
-    {
-        unsigned short MsgSequenceNumber;
-    };
+  public:  
+      AcknowledgeMsg () : AcknowledgeMsg_Auto () {}
+	  AcknowledgeMsg (byte *msgBytes) : AcknowledgeMsg_Auto (msgBytes) {}
 
-  public:
-    AcknowledgeMessage (unsigned short seqNumber);
-    AcknowledgeMessage (byte msgBytes []);
-
-    void ToConsole ();
-    void ToBytes (byte *);
-    int ByteCount () {return header.ByteCount;}
-    
-  private:
-    MessageHeader  header;
-    AckData        data;
+	  AcknowledgeMsg (unsigned int Seq) : AcknowledgeMsg_Auto () {data.MsgSequenceNumber = Seq;}
+	  int ByteCount () {return header.ByteCount;}
 };
 
 #endif
