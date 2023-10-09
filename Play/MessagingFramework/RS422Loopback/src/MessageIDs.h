@@ -19,9 +19,9 @@
 #define KeepAliveMsgId            1  // no action required, just keeps socket open
 #define StatusRequestMsgId        2
 
-#define LoopbackDataMsgId         9
-#define RunLoopbackTestMsgId      10 // command to run the loopback test
-#define SendLoopbackDataMsgId     11 // command to send data read back from FPGA
+#define LoopbackDataMsgId         100
+#define RunLoopbackTestMsgId      101 // command to run the loopback test
+#define SendLoopbackDataMsgId     102 // command to send data read back from FPGA
 
 //#define DisconnectMsgId          99
 

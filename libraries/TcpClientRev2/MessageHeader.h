@@ -20,6 +20,7 @@ struct MessageHeader
 	MessageHeader (unsigned char fromBytes []);
 	
 	bool ToBytes (unsigned char byteArray [], int maxLength);
+	void ToConsole ();
 	void ToString (); // prints to console, not a character array
 	
 	//void IncrSequenceNumber () {SequenceNumber++; NextSequenceNumber = SequenceNumber + 1;}

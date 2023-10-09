@@ -9,10 +9,10 @@
 // Message Header Format: (this is the same as PC <-> Arduino messages)
 //    Sync Low Byte  = 0x34
 //    Sync High Byte = 0x12
-//    Msg ID Low byte
-//    Msg ID High byte
 //    Byte Count Low byte
 //    Byte Count High byte
+//    Msg ID Low byte
+//    Msg ID High byte
 //    Sequence Number Low byte
 //    Sequence Number High byte
 
@@ -33,6 +33,8 @@ class FPGA_MsgBytes
         void Clear ();
         BufferState StoreByte (unsigned char ch);
 		
+		bool MessageComplete        () {return state == MsgComplete;}
+        unsigned char *GetMsgBytes  () {return ByteBuffer.Packed.ByteArray;}	
         unsigned char *GetDataBytes () {return ByteBuffer.Unpacked.MsgDataBytes;}	
 		
 		unsigned int   GetMessageID () {return ByteBuffer.Unpacked.MsgID;}		
@@ -40,7 +42,7 @@ class FPGA_MsgBytes
 		unsigned int   GetSeqNumber () {return ByteBuffer.Unpacked.SequenceNumber;}
 		
 		
-		static unsigned char SyncByte1;
+		static unsigned char SyncByte1; // constants
 		static unsigned char SyncByte2;
 		static unsigned char HeaderSize;
 		
@@ -52,8 +54,8 @@ class FPGA_MsgBytes
 			struct
 			{
 				unsigned int  SyncPattern; // = 0x1234
-				unsigned int  MsgID;
 				unsigned int  ByteCount;
+				unsigned int  MsgID;
 				unsigned int  SequenceNumber;
 				unsigned char MsgDataBytes [1];
 			} Unpacked;

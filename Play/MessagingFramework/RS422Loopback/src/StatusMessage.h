@@ -6,28 +6,16 @@
 #ifndef STATUS_MESSAGE_H
 #define STATUS_MESSAGE_H
 
-#include <Arduino.h>
+#include "StatusMsg_Auto.h"
 
-#include <MessageHeader.h>
-#include "MessageIDs.h"
-
-class StatusMessage
+class StatusMessage : public StatusMsg_Auto
 {
-    private:
-        struct StatusData
-        {
-            static const int MaxNameLength = 18;
-
-            char name [MaxNameLength];
-            byte DataReceived;
-            byte DataReady;
-        };
-
    public:
-        StatusMessage ();
-        StatusMessage (byte msgBytes []);        
-        void ToBytes (byte *);        
-        void ToConsole ();        
+        StatusMessage () : StatusMsg_Auto () {}
+        StatusMessage (byte fromBytes []) : StatusMsg_Auto (fromBytes) {}
+		
+		void ToConsole () {StatusMsg_Auto::ToConsole ();}
+		
         int ByteCount () {return header.ByteCount;}
 
         void  SetName (char *);
@@ -38,10 +26,6 @@ class StatusMessage
         
         void SetDataReady (bool s);
         bool GetDataReady ();
-         
-    private:
-        MessageHeader header;
-        StatusData    data;
 };
 
 #endif
