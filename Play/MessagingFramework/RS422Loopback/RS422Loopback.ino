@@ -7,7 +7,6 @@
 #include <FPGA_Interface.h>
 #include <FPGA_MsgBytes.h>
 
-#include "LoopbackTestFPGA.h"
 #include "MessageHandlers.h"
 #include "src/MessageIDs.h"
 #include "src/AcknowledgeMessage.h"
@@ -26,9 +25,6 @@ TcpClientRev2 *socketPtr;
 //
 FPGA_MsgBytes  fpgaByteBuffer; // accumulate bytes received from FPGA here
 FPGA_Interface fpgaInterface;
-
-// Loopback test needs this to send bytes to FPGA
-FPGA_Interface *LoopbackTestFPGA::fpgaInterfacePtr = &fpgaInterface;
 
 //
 // System Status stored here, to be sent to PC
@@ -59,7 +55,7 @@ void setup()
  
     //**********************************************************************
     
-    messageHandler.Initialize (&statusMsg, socketPtr);
+    messageHandler.Initialize (&statusMsg, &fpgaInterface, socketPtr);
 
     // tell laptop that Arduino is ready, with a text message and a status message
     TextMessage msg ("Arduino Ready");
@@ -130,7 +126,17 @@ void InterruptProcessing (void *ptr)
 
         // forward message on to PC
         if (fpgaByteBuffer.GetMessageID () == 100)
+        {
           socketPtr->write (fpgaByteBuffer.GetMsgBytes (), fpgaByteBuffer.GetByteCount ());
+          statusMsg.SetDataReady (0);
+          socketPtr->write ((char *) &statusMsg, statusMsg.ByteCount ());         
+        }
+        
+        if (fpgaByteBuffer.GetMessageID () == 103)
+        {
+            statusMsg.SetDataReady (1);
+            socketPtr->write ((char *) &statusMsg, statusMsg.ByteCount ());         
+        }
 
         // prepare for next message
         fpgaByteBuffer.Clear ();              

@@ -11,24 +11,24 @@
 #include "src/StatusMessage.h"
 #include "src/TextMessage.h"
 
-#include "LoopbackTestFPGA.h"
-
 #define null ((void *) 0)
 
 //**************************************************************************
 
 MessageHandlers::MessageHandlers ()
 {
-    socketPtr = null;
-    statusMsgPtr = null;
+    socketPtr        = null;
+    fpgaInterfacePtr = null;
+    statusMsgPtr     = null;
 }
 
 //**************************************************************************
 
-void MessageHandlers::Initialize (StatusMessage *smp, TcpClientRev2 *sp)
+void MessageHandlers::Initialize (StatusMessage *smp, FPGA_Interface *fpga, TcpClientRev2 *sp)
 {
-    socketPtr = sp;
-    statusMsgPtr = smp;
+    fpgaInterfacePtr = fpga;
+    socketPtr        = sp;
+    statusMsgPtr     = smp;
 }
 
 //**************************************************************************
@@ -51,15 +51,19 @@ void MessageHandlers::StatusRequestMsgHandler (byte msgBytes [])
 //    - passed message bytes
 //
 
-LoopbackTestFPGA *loopbackTest = null;
-
 void MessageHandlers::LoopbackDataMsgHandler (byte msgBytes []) 
 { 
     Serial.println ("Loopback data");
     ((LoopbackDataMsg *) msgBytes)->ToConsole ();
+        
+    int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
     
+//    Serial.println ("Passing PC RunTest msg to FPGA");
+//    Serial.print (byteCount);
+//    Serial.println (" bytes");
     
-    loopbackTest = new LoopbackTestFPGA (msgBytes);    
+    fpgaInterfacePtr->WriteBytes (msgBytes, byteCount);
+      
     statusMsgPtr->SetDataReceived (1);
     socketPtr->write ((char *) statusMsgPtr, statusMsgPtr->ByteCount ());       
 }
@@ -68,23 +72,28 @@ void MessageHandlers::LoopbackDataMsgHandler (byte msgBytes [])
 
 void MessageHandlers::RunLoopbackTestMsgHandler (byte msgBytes [])
 {
-    if (loopbackTest != null)
-    {
-        loopbackTest->RunTest (msgBytes);
-		
-        statusMsgPtr->SetDataReady (1);
-        socketPtr->write ((char *) statusMsgPtr, statusMsgPtr->ByteCount ());       
-    }
+    int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
+    
+//    Serial.println ("Passing PC RunTest msg to FPGA");
+//    Serial.print (byteCount);
+//    Serial.println (" bytes");
+//    
+    fpgaInterfacePtr->WriteBytes (msgBytes, byteCount);
+//        statusMsgPtr->SetDataReady (1);
+//        socketPtr->write ((char *) statusMsgPtr, statusMsgPtr->ByteCount ());       
 }
       
 void MessageHandlers::SendLoopbackTestResultsMsgHandler (byte msgBytes [])
 {
-    if (loopbackTest != null)
-    {    
-        loopbackTest->SendResults (msgBytes); // forward message on to FPGA
-        
-        statusMsgPtr->SetDataReceived (0);
-        statusMsgPtr->SetDataReady (0);
-        socketPtr->write ((char *) statusMsgPtr, statusMsgPtr->ByteCount ());       
-    }
+    int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
+    
+//    Serial.println ("Passing PC SendResults msg to FPGA");
+//    Serial.print (byteCount);
+//    Serial.println (" bytes");
+    
+    fpgaInterfacePtr->WriteBytes (msgBytes, byteCount);
+  
+    statusMsgPtr->SetDataReceived (0);
+    statusMsgPtr->SetDataReady (0);
+    socketPtr->write ((char *) statusMsgPtr, statusMsgPtr->ByteCount ());       
 }
