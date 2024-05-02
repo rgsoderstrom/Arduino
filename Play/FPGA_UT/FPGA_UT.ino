@@ -56,7 +56,7 @@ void loop()
 void InterruptProcessing (void *ptr)
 {
     unsigned char ch = fpgaInterface.ReadOneByte ();
-    Serial.print ("Int: 0x");
+    Serial.print ("FPGA: 0x");
     Serial.println ((int) ch, HEX); 
 
     FPGA_MsgBytes::BufferState st = fpgaByteBuffer.StoreByte (ch);

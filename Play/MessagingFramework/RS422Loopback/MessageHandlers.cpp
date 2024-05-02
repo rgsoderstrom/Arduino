@@ -58,7 +58,7 @@ void MessageHandlers::LoopbackDataMsgHandler (byte msgBytes [])
         
     int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
     
-//    Serial.println ("Passing PC RunTest msg to FPGA");
+    Serial.println ("Passing PC Loopback Data msg to FPGA");
 //    Serial.print (byteCount);
 //    Serial.println (" bytes");
     
@@ -74,7 +74,7 @@ void MessageHandlers::RunLoopbackTestMsgHandler (byte msgBytes [])
 {
     int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
     
-//    Serial.println ("Passing PC RunTest msg to FPGA");
+    Serial.println ("Passing PC RunTest msg to FPGA");
 //    Serial.print (byteCount);
 //    Serial.println (" bytes");
 //    
@@ -87,7 +87,7 @@ void MessageHandlers::SendLoopbackTestResultsMsgHandler (byte msgBytes [])
 {
     int byteCount = ((MessageHeader *) msgBytes)->ByteCount;
     
-//    Serial.println ("Passing PC SendResults msg to FPGA");
+    Serial.println ("Passing PC SendResults msg to FPGA");
 //    Serial.print (byteCount);
 //    Serial.println (" bytes");
     

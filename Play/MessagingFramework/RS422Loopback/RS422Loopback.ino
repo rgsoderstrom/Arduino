@@ -113,8 +113,8 @@ void loop()
 void InterruptProcessing (void *ptr)
 {
     unsigned char ch = fpgaInterface.ReadOneByte ();
-    Serial.print ("Int: 0x");
-    Serial.println ((int) ch, HEX); 
+//    Serial.print ("FPGA byte: 0x");
+//    Serial.println ((int) ch, HEX); 
 
     fpgaByteBuffer.StoreByte (ch);
 
@@ -125,14 +125,14 @@ void InterruptProcessing (void *ptr)
         Serial.println (" received from FPGA");
 
         // forward message on to PC
-        if (fpgaByteBuffer.GetMessageID () == 100)
+        if (fpgaByteBuffer.GetMessageID () == 100) // loopback test data bytes
         {
           socketPtr->write (fpgaByteBuffer.GetMsgBytes (), fpgaByteBuffer.GetByteCount ());
           statusMsg.SetDataReady (0);
           socketPtr->write ((char *) &statusMsg, statusMsg.ByteCount ());         
         }
         
-        if (fpgaByteBuffer.GetMessageID () == 103)
+        if (fpgaByteBuffer.GetMessageID () == 104)
         {
             statusMsg.SetDataReady (1);
             socketPtr->write ((char *) &statusMsg, statusMsg.ByteCount ());         
