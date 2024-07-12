@@ -13,38 +13,36 @@
 
 JobQueue OneTimeJobs;
 
-// buffer for bytes received from FPGA
-FPGA_MsgBytes fpgaByteBuffer;
-
+// 
+// FPGA Interface
+//
+FPGA_MsgBytes  fpgaByteBuffer;
 FPGA_Interface fpgaInterface;
 
 //**********************
-unsigned char LoadDataMsgBytes [] = {0x34, 0x12, 32, 0, 0x64, 0, 1, 0, 
-                                     1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0, 12, 0};
-
-unsigned char RunProcMsgBytes [] = {0x34, 0x12, 8, 0, 0x65, 0, 2, 0};
-
-unsigned char SendDataMsgBytes [] = {0x34, 0x12, 8, 0, 0x66, 0, 3, 0};
+unsigned char ClearSamplesMsgBytes   [] = {0x34, 0x12, 8, 0, 100, 0, 1, 0};
+unsigned char CollectSamplesMsgBytes [] = {0x34, 0x12, 8, 0, 101, 0, 2, 0};
+unsigned char SendSamplesMsgBytes    [] = {0x34, 0x12, 8, 0, 102, 0, 3, 0};   
 
 
 void setup() 
 {
     Serial.begin (9600);
     Serial.println ("starting");
-  
+    OneTimeJobs.Clear ();
+    
     fpgaByteBuffer.Clear ();
 
     fpgaInterface.ConfigurePins ();
     fpgaInterface.AttachInterrupt ();
     fpgaInterface.RegisterInterruptCallback (InterruptCallbackFcn);
 
-//    interrupts ();
+    interrupts ();
 
-    Serial.println ("Sending LoadDataMsgBytes msg to FPGA");
-    fpgaInterface.WriteBytes (LoadDataMsgBytes, sizeof (LoadDataMsgBytes) / sizeof (LoadDataMsgBytes [0]));
-    
-    Serial.println ("Sending RunProcessing msg to FPGA");
-    fpgaInterface.WriteBytes (RunProcMsgBytes,  sizeof (RunProcMsgBytes)  / sizeof (RunProcMsgBytes [0]));
+    Serial.println ("Sending msg to FPGA");
+    fpgaInterface.WriteBytes (ClearSamplesMsgBytes, 8); // sizeof (LoadDataMsgBytes) / sizeof (LoadDataMsgBytes [0]));
+//  fpgaInterface.WriteBytes (CollectSamplesMsgBytes, 8); 
+//  fpgaInterface.WriteBytes (SendSamplesMsgBytes, 8);
 }
 
 
@@ -68,12 +66,6 @@ void InterruptProcessing (void *ptr)
         Serial.println (" received");
 
         fpgaByteBuffer.Clear ();
-        
-        if (fpgaByteBuffer.GetMessageID () == 104)
-        {
-            Serial.println ("sending SendDataMsgBytes to FPGA");
-            fpgaInterface.WriteBytes (SendDataMsgBytes, sizeof (SendDataMsgBytes) / sizeof (SendDataMsgBytes [0]));
-        }
     }
 }
 
