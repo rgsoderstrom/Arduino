@@ -16,7 +16,8 @@
 
 #include <MessageHeader.h>
 
-#define ByteBufferSize 64
+// for messages received from PC
+#define ByteBufferSize 128
 
 //**********************************************************************************
 
@@ -24,11 +25,7 @@ class TcpClientRev2
 {
     public:
         TcpClientRev2 ();
-
-        static bool ConnectToNetwork (const char *, const char *);
         
-        bool ConnectToServer (const char *, int);
-        bool ConnectToServer (IPAddress&, int);
         bool IsConnected () {return client.connected ();}
 
         void write (char *bytes, unsigned int byteCount);
@@ -42,6 +39,12 @@ class TcpClientRev2
     private:
         WiFiClient client;
         
+        static bool ConnectToNetwork (const char *, const char *);
+		
+        bool ConnectToServer (const char *);
+        bool ConnectToServer (const char *, int);
+        bool ConnectToServer (IPAddress&, int);
+		
         char byteBuffer [ByteBufferSize]; // at least as large as longest message
         unsigned int put;
         

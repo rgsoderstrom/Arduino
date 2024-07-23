@@ -23,6 +23,9 @@ TcpClientRev2::TcpClientRev2 ()
     int retryCounter = 5;
     bool success = false;
 	
+	//
+	// Connect to network
+	//
     Serial.print (F("Connecting to network "));
     Serial.print (SSID);
     
@@ -38,47 +41,46 @@ TcpClientRev2::TcpClientRev2 ()
     else
     {
         Serial.println (F(" failed, stopping"));
-
         while (1)
         ;
     }
     
-  //******************************************************************
-
-    Serial.println (F("Get server address"));
+  //
+  // Connect to server. Go through list of names in
+  // servers [] until one works
+  //
+	int si = FirstServer;	
+	char *server = servers [si];
+	
+	for (int i=0; i<6; i++)
+	{
+		Serial.print ("Connect to server ");
+		Serial.println (server);
+		
+		success = ConnectToServer (server);
+		
+		if (success == true)
+			return;
+		
+		if (++si == NumberServers)
+			si = 0;
+		
+		server = servers [si];
+	}
+	
+	while (1)
+	;
+}
+	
+bool TcpClientRev2::ConnectToServer (const char *server)
+{	
     IPAddress ipa;
-    success = WiFi.hostByName (server, ipa); // returns 1 if successful
+    bool success = WiFi.hostByName (server, ipa); // returns 1 if successful
 
-    if (success)
-    {
-        Serial.print ("Server address: ");
-        Serial.println (ipa);
-    }
-    else
-    {
-        Serial.println (F(" failed to get server address, stopping"));
-        while (1)
-        ;
-    }
+    if (success == false)
+		return false;
     
-    Serial.println (F("Connecting to server"));
-    retryCounter = 5;
-    
-    do
-    {
-        success = ConnectToServer (server, 11000);
-        if (success == false) Serial.print (F("."));
-    
-    } while ((success == false) && (retryCounter-- > 0));
-
-    if (success)
-        Serial.println (F(" succeeded"));
-    else
-    {
-        Serial.println (F(" failed, stopping"));
-        while (1)
-        ;
-    }
+	return ConnectToServer (server, 11000);
 }
 
 //**************************************************************************************************
@@ -90,9 +92,6 @@ bool TcpClientRev2::ConnectToNetwork (const char *ssid, const char *passwd)
   
   while (1)
   {
-    //Serial.print ("Attempting to connect to network: ");
-    //Serial.println (ssid);
-
     status = WiFi.begin (ssid, passwd);
 
     if (status == WL_CONNECTED)
@@ -101,7 +100,7 @@ bool TcpClientRev2::ConnectToNetwork (const char *ssid, const char *passwd)
     if (++count == MaxAttempts)
       break;
       
-    delay (3000);
+    delay (1000); // was (3000);
   }
 
   if (status == WL_CONNECTED)
@@ -114,9 +113,6 @@ bool TcpClientRev2::ConnectToNetwork (const char *ssid, const char *passwd)
 
 bool TcpClientRev2::ConnectToServer (const char *server, int port)
 {
-  //IPAddress addr = getHostByName (server);
-
-  
   return client.connect (server, port);
 }
 
