@@ -37,8 +37,11 @@ void setup()
     // tell laptop that Arduino is ready
     ReadyMsg_Auto msg1;
     socketPtr->write ((char *) &msg1, msg1.header.ByteCount);
+
+    char readyText [60] = "SSID ";
+    strcat (readyText, WiFi.SSID());
     
-    TextMessage msg2 ("Arduino Ready");
+    TextMessage msg2 (readyText);
     socketPtr->write ((char *) &msg2, msg2.ByteCount ());
 }
 
@@ -47,7 +50,6 @@ void setup()
 #define MaxMessageBytes 256
 char messageBytes [MaxMessageBytes];
  
-
 void loop() 
 {
     OneTimeJobs.RunJobs (millis ());
