@@ -43,11 +43,11 @@ void setup()
     fpgaInterface.AttachInterrupt ();
     fpgaInterface.RegisterInterruptCallback (InterruptCallbackFcn);
  
-    //**********************************************************************
+    char readyText [60] = "SSID ";
+    strcat (readyText, WiFi.SSID());
     
-    // text message to tell laptop that Arduino is ready
-    TextMessage msg ("Arduino Ready");
-    socketPtr->write ((char *) &msg, msg.ByteCount ());
+    TextMessage msg2 (readyText);
+    socketPtr->write ((char *) &msg2, msg2.ByteCount ());
 }
 
 //*****************************************************************
