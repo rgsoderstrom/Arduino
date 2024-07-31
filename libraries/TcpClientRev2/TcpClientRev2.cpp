@@ -23,6 +23,11 @@ TcpClientRev2::TcpClientRev2 ()
     int retryCounter = 5;
     bool success = false;
 	
+	put = 0;
+	
+	for (int i=0; i<ByteBufferSize; i++)
+		byteBuffer [i] = 0;
+	
 	//
 	// Connect to network
 	//
