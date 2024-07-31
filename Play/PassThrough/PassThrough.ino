@@ -86,8 +86,9 @@ void loop()
 				        case 102:
 				                 fpgaInterface.WriteBytes (messageBytes, header->ByteCount);                
 						             break;
-						
-                default: Serial.println ("UNEXPECTED");
+                
+                default: Serial.print   ("Unexpected msg ID ");
+                         Serial.println (header->MsgId);
                          break;
             }
 

@@ -80,7 +80,8 @@ void loop()
                 case CollectMsgId: messageHandler.CollectMsgHandler (messageBytes); break;
                 case SendMsgId:    messageHandler.SendMsgHandler    (messageBytes); break;               
                 
-                default: Serial.println ("Unexpected msg ID");
+                default: Serial.print   ("Unexpected msg ID ");
+                         Serial.println (header->MsgId);
                          break;
             }
 
