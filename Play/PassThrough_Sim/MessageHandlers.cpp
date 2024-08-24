@@ -35,7 +35,7 @@ void MessageHandlers::ClearMsgHandler (byte msgBytes [])
     Serial.println ("Clear");
     
     for (int i=0; i<BufferSize; i++)
-      SampleBuffer [i] = 1234;
+      SampleBuffer [i] = 512 - i;
 
     get = 0;
 }
@@ -64,8 +64,9 @@ void MessageHandlers::SendMsgHandler (byte msgBytes [])
 
     if (get >= BufferSize)
     {
-      socketPtr->write ((char *) &allSentMsg, allSentMsg.header.ByteCount);
-      get = 0;
+        Serial.println ("AllSent");
+        socketPtr->write ((char *) &allSentMsg, allSentMsg.header.ByteCount);
+        get = 0;
     }
 }
 

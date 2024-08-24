@@ -73,8 +73,11 @@ void loop()
         {
             MessageHeader *header = (MessageHeader *) messageBytes;
 
-            Serial.print ("PC MessageID ");
-            Serial.println (header->MsgId);
+            //Serial.print ("PC MessageID ");
+            //Serial.println (header->MsgId);
+
+            AcknowledgeMsg ack (header->SequenceNumber);
+            socketPtr->write ((char *) &ack, ack.ByteCount ());
             
             switch (header->MsgId)
             {                
@@ -91,9 +94,6 @@ void loop()
                          Serial.println (header->MsgId);
                          break;
             }
-
-            AcknowledgeMsg ack (header->SequenceNumber);
-            socketPtr->write ((char *) &ack, ack.ByteCount ());
         }
     }
 }

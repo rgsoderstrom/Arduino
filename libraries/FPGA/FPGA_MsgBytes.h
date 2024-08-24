@@ -47,7 +47,7 @@ class FPGA_MsgBytes
 		static unsigned char HeaderSize;
 		
     private:
-		static const int BufferSize = 256;
+		static const int BufferSize = 768;
 
 		union msgByteUnion
 		{
