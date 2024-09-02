@@ -23,9 +23,11 @@
 
 
 // PC -> Arduino
-#define ClearMsgId    100
-#define CollectMsgId  101
-#define SendMsgId     102
+#define ClearMsgId      100
+#define CollectMsgId    101
+#define SendMsgId       102
+#define AnalogGainMsgId 103
+#define SampleRateMsgId 104
 
 #endif
 

@@ -76,9 +76,11 @@ void loop()
                 case KeepAliveMsgId:
                          break;
                          
-                case ClearMsgId:   messageHandler.ClearMsgHandler   (messageBytes); break;
-                case CollectMsgId: messageHandler.CollectMsgHandler (messageBytes); break;
-                case SendMsgId:    messageHandler.SendMsgHandler    (messageBytes); break;               
+                case ClearMsgId:      messageHandler.ClearMsgHandler      (messageBytes); break;
+                case CollectMsgId:    messageHandler.CollectMsgHandler    (messageBytes); break;
+                case SendMsgId:       messageHandler.SendMsgHandler       (messageBytes); break;               
+                case AnalogGainMsgId: messageHandler.AnalogGainMsgHandler (messageBytes); break;               
+                case SampleRateMsgId: messageHandler.SampleRateMsgHandler (messageBytes); break;               
                 
                 default: Serial.print   ("Unexpected msg ID ");
                          Serial.println (header->MsgId);

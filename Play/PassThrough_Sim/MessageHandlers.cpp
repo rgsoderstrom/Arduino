@@ -70,6 +70,22 @@ void MessageHandlers::SendMsgHandler (byte msgBytes [])
     }
 }
 
+void MessageHandlers::AnalogGainMsgHandler (byte msgBytes [])
+{
+    AnalogGainMsg_Auto msg (msgBytes);
+    
+    Serial.print ("AnalogGainMsg ");
+    Serial.println (msg.data.DacValue);
+}
+
+void MessageHandlers::SampleRateMsgHandler (byte msgBytes [])
+{
+    SampleRateMsg_Auto msg (msgBytes);
+    
+    Serial.print ("SampleRateMsg ");
+    Serial.println (msg.data.RateDivisor);
+}
+
 //**************************************************************************
 //**************************************************************************
 //**************************************************************************

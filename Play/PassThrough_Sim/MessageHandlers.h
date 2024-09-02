@@ -11,6 +11,8 @@
 #include "src/SendMsg_Auto.h"
 #include "src/SampleDataMsg_Auto.h"
 #include "src/AllSentMsg_Auto.h"
+#include "src/SampleRateMsg_Auto.h"
+#include "src/AnalogGainMsg_Auto.h"
 
 class MessageHandlers
 {
@@ -23,6 +25,8 @@ class MessageHandlers
     void ClearMsgHandler   (byte msgBytes []);
     void CollectMsgHandler (byte msgBytes []);
     void SendMsgHandler    (byte msgBytes []);
+    void AnalogGainMsgHandler (byte msgBytes []);
+    void SampleRateMsgHandler (byte msgBytes []);
 
   private:
     TcpClientRev2  *socketPtr;

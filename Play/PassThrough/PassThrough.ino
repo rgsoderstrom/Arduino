@@ -86,7 +86,9 @@ void loop()
                 
 				        case 100:
 				        case 101:
-				        case 102:
+                case 102:
+                case 103:
+                case 104:
 				                 fpgaInterface.WriteBytes (messageBytes, header->ByteCount);                
 						             break;
                 
