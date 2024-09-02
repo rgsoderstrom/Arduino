@@ -45,7 +45,7 @@ class TcpClientRev2
         bool ConnectToServer (const char *, int);
         bool ConnectToServer (IPAddress&, int);
 		
-        char byteBuffer [ByteBufferSize]; // at least as large as longest message
+        char byteBuffer [ByteBufferSize]; // at least as large as longest incoming message
         unsigned int put;
         
         int  read  (uint8_t*, unsigned int maxByteCount);
