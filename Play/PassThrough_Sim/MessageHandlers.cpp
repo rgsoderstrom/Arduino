@@ -54,20 +54,23 @@ void MessageHandlers::SendMsgHandler (byte msgBytes [])
 {
     Serial.print   ("Send ");
     Serial.println (get);
+
+    int remaining = BufferSize - get;
     
-    for (int i=0; i<SampleDataMsg_Auto::Data::MaxCount; i++)
+    if (remaining < 0) 
+        remaining = 0;
+
+    int countThisMessage = remaining < SampleDataMsg_Auto::Data::MaxCount ?
+                           remaining : SampleDataMsg_Auto::Data::MaxCount;
+
+    sampleMsg.data.Count = countThisMessage;
+    
+    for (int i=0; i<countThisMessage; i++)
     {
         sampleMsg.data.Sample [i] = SampleBuffer [get++];
     }
 
     socketPtr->write ((char *) &sampleMsg, sampleMsg.header.ByteCount);
-
-    if (get >= BufferSize)
-    {
-        Serial.println ("AllSent");
-        socketPtr->write ((char *) &allSentMsg, allSentMsg.header.ByteCount);
-        get = 0;
-    }
 }
 
 void MessageHandlers::AnalogGainMsgHandler (byte msgBytes [])

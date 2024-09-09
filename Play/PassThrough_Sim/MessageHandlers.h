@@ -10,7 +10,6 @@
 #include "src/CollectMsg_Auto.h"
 #include "src/SendMsg_Auto.h"
 #include "src/SampleDataMsg_Auto.h"
-#include "src/AllSentMsg_Auto.h"
 #include "src/SampleRateMsg_Auto.h"
 #include "src/AnalogGainMsg_Auto.h"
 
@@ -32,7 +31,6 @@ class MessageHandlers
     TcpClientRev2  *socketPtr;
 
     SampleDataMsg_Auto sampleMsg;
-    AllSentMsg_Auto    allSentMsg;
 
     int nextSample;
     
