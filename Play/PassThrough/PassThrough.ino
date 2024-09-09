@@ -92,9 +92,18 @@ void loop()
 				                 fpgaInterface.WriteBytes (messageBytes, header->ByteCount);                
 						             break;
                 
-                default: Serial.print   ("Unexpected msg ID ");
-                         Serial.println (header->MsgId);
-                         break;
+                default:
+                      { 
+                            const int N = 60;
+                            char text1 [N];
+                            snprintf (text1, N, "Unexpected msg ID: %d", header->MsgId);
+                            TextMessage msg3 (text1);
+                            socketPtr->write ((char *) &msg3, msg3.ByteCount ());
+                  
+                          //Serial.print   ("Unexpected msg ID ");
+                          //Serial.println (header->MsgId);
+                            break;
+                      }
             }
         }
     }
