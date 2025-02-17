@@ -38,6 +38,8 @@ class MessageHandlers
     int TimeHist     [SampleBufferSize];
     unsigned int put;
     unsigned int get;
+   
+    static unsigned int StartMillis; // time when sampling started
     
     SensorDataMsg_Auto sampleMsg;
     

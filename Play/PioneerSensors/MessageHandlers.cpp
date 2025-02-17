@@ -17,9 +17,10 @@
 
 const int MessageHandlers::PressurePin = 0; // analog pin connected to pressure transducer
 
-const int MessageHandlers::PhaseAPin = 2; // digital pins connected to shaft encoder
-const int MessageHandlers::PhaseBPin = 4;
-      int MessageHandlers::interruptPin; // = PhaseAPin;
+const int    MessageHandlers::PhaseAPin = 2; // digital pins connected to shaft encoder
+const int    MessageHandlers::PhaseBPin = 4;
+      int    MessageHandlers::interruptPin; // = PhaseAPin;
+unsigned int MessageHandlers::StartMillis;  // millis when sampling starts
 
 volatile int MessageHandlers::AngleCounts = 0; // accumulates shaft encoder pulse count
 
@@ -55,7 +56,7 @@ void MessageHandlers::RecordSensors (void)
     thisPtr->AngleHist    [p] = A++;
 #endif
 
-    thisPtr->TimeHist [p] = millis ();
+    thisPtr->TimeHist [p] = millis () - StartMillis;
     
     if (thisPtr->put == SampleBufferSize)
     {
@@ -113,6 +114,7 @@ void MessageHandlers::StartSamplingMsgHandler (byte msgBytes [])
 #endif
     
     periodicJobsPtr->Add (RecordSensors, NULL, RecordSensorsJobName, SampleTime);
+    StartMillis = millis ();
 }
 
 //**************************************************************************
