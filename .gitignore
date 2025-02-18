@@ -4,7 +4,9 @@ MC33926 Shield/
 
 *_Auto.cpp
 *_Auto.h
- 
+
+libraries/WiFiNINA/
+
 programming_arduino_book/
 Simulations/
 StepperTest_mod/
