@@ -1,0 +1,122 @@
+
+// shaftEncoder1 - characterize motor driver & ShaftEncoder
+//               - max = approx. 880 transitions in 1 second, less than 1/2 revolution
+
+#include <math.h>
+#include "ShaftEncoder.h"
+#include "DualMC33926MotorShield.h"
+
+ShaftEncoder shaft1;
+ShaftEncoder shaft2;
+
+DualMC33926MotorShield motorController;
+
+const int MaxSpeed = 400;
+const int initialSpeed = 100;
+const int finalSpeed = MaxSpeed;
+
+const int testDuration = 1; // seconds
+const float dt = 0.005; // seconds between measurements
+
+const int dtMillis = (int) (0.5 + 1000 * dt); // (millis/sec) * sec
+ 
+// number of test steps
+const int N = 1 + testDuration / dt;
+
+
+int cumulativeTransitions1 [N];
+int cumulativeTransitions2 [N];
+
+const float speedIncrement = ((float) (finalSpeed - initialSpeed)) / (N - 1);
+float currentM1Speed = initialSpeed;
+float currentM2Speed = initialSpeed;
+
+int next = 0;
+
+unsigned long lastMillis;
+
+//***************************************************************************
+
+void setup() 
+{
+    Serial.begin (115200);
+
+    Serial.print (N); Serial.println (" test steps");
+    Serial.print (speedIncrement); Serial.println (" speed incr");
+
+    shaft1.Open (1);
+    shaft2.Open (2);
+
+    motorController.init ();
+    motorController.setM1Speed (currentM1Speed);
+    motorController.setM2Speed (currentM2Speed);
+
+    lastMillis = millis ();
+}
+
+//***************************************************************************
+
+bool done = false;
+
+void loop() 
+{
+    if (done)
+        return;
+        
+    unsigned long now = millis ();
+    
+    shaft1.TestForTransition ();
+    shaft2.TestForTransition ();
+
+    if (now > lastMillis + dtMillis)
+    {
+        lastMillis = now;
+        
+        cumulativeTransitions1 [next]   = fabs (shaft1.GetNumberOfTransitions (false));
+        cumulativeTransitions2 [next++] = fabs (shaft2.GetNumberOfTransitions (false));
+
+
+        int i = next - 1;
+        int diff = cumulativeTransitions2 [i] - cumulativeTransitions1 [i];
+        currentM1Speed += diff * speedIncrement / 20;
+            
+/**
+        if (cumulativeTransitions1 [i] < cumulativeTransitions2 [i]) currentM1Speed += speedIncrement / 3;
+        if (cumulativeTransitions1 [i] > cumulativeTransitions2 [i]) currentM2Speed += speedIncrement / 3;
+**/
+        
+
+        done = (next == N) || (currentM1Speed > finalSpeed) || (currentM2Speed > finalSpeed);
+
+        if (!done)
+        {
+            currentM1Speed += speedIncrement;
+            currentM2Speed += speedIncrement;
+            
+            motorController.setM1Speed ((int) (0.5 + currentM1Speed));
+            motorController.setM2Speed ((int) (0.5 + currentM2Speed));
+        }
+        else
+        {
+            motorController.setM1Speed (0);
+            motorController.setM2Speed (0);
+            
+            for (int i=0; i<N; i++)
+            {
+                Serial.print (i); 
+                Serial.print (" "); Serial.print (cumulativeTransitions1 [i]);  
+                Serial.print (" "); Serial.print (cumulativeTransitions2 [i]); 
+                
+                if (i < N - 1) Serial.println ("; ...");                   
+            }
+
+            Serial.println ("");
+            Serial.print (currentM1Speed); Serial.println (" currentM1Speed");
+            Serial.print (currentM2Speed); Serial.println (" currentM2Speed");
+        }
+    }
+}
+
+
+
+
