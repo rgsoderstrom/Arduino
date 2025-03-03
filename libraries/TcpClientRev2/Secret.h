@@ -16,5 +16,5 @@ const char *servers [] = {"RandysLG",
                           "RandysLaptop"};
 						   
 const int NumberServers = sizeof (servers) / sizeof (servers [0]);
-const int FirstServer = 0; // servers [FirstServer] tried first						   
+const int FirstServer = 1; // servers [FirstServer] tried first						   
 #endif
