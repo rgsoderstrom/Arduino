@@ -13,6 +13,7 @@
 #include "src/MessageIDs.h"
 #include "src/TextMessage.h"
 #include "src/AcknowledgeMessage.h"
+#include "src/ReadyMsg_Auto.h"
 
 JobQueue OneTimeJobs;
 
@@ -81,9 +82,12 @@ void loop()
             
             switch (header->MsgId)
             {                
-                case KeepAliveMsgId:
-                         break;
-                
+                case KeepAliveMsgId: {
+                        ReadyMsg_Auto rdy;
+                        socketPtr->write ((char *) &rdy, rdy.header.ByteCount);
+                        break;
+                  }
+
 				        //case 100:
 				        //case 101:
                 //case 102:
