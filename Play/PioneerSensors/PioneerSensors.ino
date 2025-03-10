@@ -75,16 +75,24 @@ void loop()
             AcknowledgeMsg ack (header->SequenceNumber);
             socketPtr->write ((char *) &ack, ack.ByteCount ());
             
+            bool SendReady = true;
+
             switch (header->MsgId)
             {                
                 case KeepAliveMsgId: break;
                          
-                case StartSamplingMsgId: messageHandler.StartSamplingMsgHandler (messageBytes); break;
-                case SendSamplesMsgId:   messageHandler.SendSamplesMsgHandler   (messageBytes); break;
+                case StartSamplingMsgId: messageHandler.StartSamplingMsgHandler (messageBytes); SendReady = false; break;
+                case SendSamplesMsgId:   messageHandler.SendSamplesMsgHandler   (messageBytes); SendReady = false; break;
                 
                 default: 
                       //Serial.print   ("Unexpected msg ID "); Serial.println (header->MsgId); 
                       break;
+            }
+
+            if (SendReady == true)
+            {
+              ReadyMsg_Auto rdy;
+              socketPtr->write ((char *) &rdy, rdy.header.ByteCount);
             }
         }
     }

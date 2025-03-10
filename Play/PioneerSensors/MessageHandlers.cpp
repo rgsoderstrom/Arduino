@@ -13,7 +13,7 @@
 
 #define null ((void *) 0)
 
-#define RealSensors
+// #define RealSensors
 
 const int MessageHandlers::PressurePin = 0; // analog pin connected to pressure transducer
 
@@ -41,6 +41,10 @@ void MessageHandlers::IntHandler ()
     else        thisPtr->AngleCounts--;
 }
 
+//******************************************************************
+//
+// RecordSensors - periodic task to read and record sensors
+//
 void MessageHandlers::RecordSensors (void)
 {
     int p = thisPtr->put++;
