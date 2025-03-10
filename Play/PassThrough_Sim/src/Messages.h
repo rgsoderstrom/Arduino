@@ -8,7 +8,7 @@
 
 #include "AcknowledgeMessage.h"   
 #include "TextMessage.h"
-#include "ClearMsg_Auto.h"    
+#include "ClearSamplesMsg_Auto.h"    
 #include "CollectMsg_Auto.h"    
 #include "KeepAliveMsg_Auto.h"  
 #include "ReadyMsg_Auto.h"  

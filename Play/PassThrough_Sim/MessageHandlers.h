@@ -6,11 +6,10 @@
 #ifndef MESSAGEHANDLERS_H
 #define MESSAGEHANDLERS_H
 
-#include "src/ClearMsg_Auto.h"
-#include "src/CollectMsg_Auto.h"
+#include "src/ClearSamplesMsg_Auto.h"
+#include "src/BeginSamplingMsg_Auto.h"
 #include "src/SendMsg_Auto.h"
 #include "src/SampleDataMsg_Auto.h"
-#include "src/SampleRateMsg_Auto.h"
 #include "src/AnalogGainMsg_Auto.h"
 
 class MessageHandlers

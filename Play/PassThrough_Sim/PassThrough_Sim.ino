@@ -71,6 +71,11 @@ void loop()
             //Serial.print ("PC MessageID ");
             //Serial.println (header->MsgId);
             
+            AcknowledgeMsg ack (header->SequenceNumber);
+            socketPtr->write ((char *) &ack, ack.ByteCount ());
+
+			bool SendReadyMsg = true;
+
             switch (header->MsgId)
             {                
                 case KeepAliveMsgId:
@@ -78,7 +83,7 @@ void loop()
                          
                 case ClearMsgId:      messageHandler.ClearMsgHandler      (messageBytes); break;
                 case CollectMsgId:    messageHandler.CollectMsgHandler    (messageBytes); break;
-                case SendMsgId:       messageHandler.SendMsgHandler       (messageBytes); break;               
+                case SendMsgId:       messageHandler.SendMsgHandler       (messageBytes); SendReadyMsg = false; break;               
                 case AnalogGainMsgId: messageHandler.AnalogGainMsgHandler (messageBytes); break;               
                 case SampleRateMsgId: messageHandler.SampleRateMsgHandler (messageBytes); break;               
                 
@@ -87,8 +92,11 @@ void loop()
                          break;
             }
 
-            AcknowledgeMsg ack (header->SequenceNumber);
-            socketPtr->write ((char *) &ack, ack.ByteCount ());
-        }
+			if (SendReadyMsg == true)
+			{
+	            ReadyMsg ready (header->SequenceNumber);
+    	        socketPtr->write ((char *) &ready, ready.ByteCount ());
+			}
+        }        
     }
 }
