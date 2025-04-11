@@ -13,7 +13,7 @@
 
 #define null ((void *) 0)
 
-// #define RealSensors
+#define RealSensors
 
 const int MessageHandlers::PressurePin = 0; // analog pin connected to pressure transducer
 

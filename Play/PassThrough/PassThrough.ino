@@ -86,17 +86,33 @@ void loop()
                         ReadyMsg_Auto rdy;
                         socketPtr->write ((char *) &rdy, rdy.header.ByteCount);
                         break;
-                  }
+                }
 
 				        //case 100:
 				        //case 101:
                 //case 102:
                 //case 103:
                 //case 104:
+
                 default:
+                {
+                        //  const int N = 60;
+                        //  char text1 [N];
+                        //  snprintf (text1, N, "Sending msg ID: %d to FPGA", header->MsgId);
+                        //  TextMessage msg3 (text1);
+                        //  socketPtr->write ((char *) &msg3, msg3.ByteCount ());
+
+                         TextMessage msg3 ("Sending");
+                         socketPtr->write ((char *) &msg3, msg3.ByteCount ());
+
 				                 fpgaInterface.WriteBytes (messageBytes, header->ByteCount);                
-						             break;
-                
+
+                         TextMessage msg4 ("Sent");
+                         socketPtr->write ((char *) &msg4, msg4.ByteCount ());
+
+                         break;
+                }
+
 //                default:
 //                      { 
 //                            const int N = 60;
