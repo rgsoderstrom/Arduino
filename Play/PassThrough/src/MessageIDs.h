@@ -18,4 +18,16 @@
 // PC -> Arduino
 #define KeepAliveMsgId    1  // no action required, just keeps socket open
 
+
+
+#define  BeginPingCycleMsgId 99
+#define  AnalogGainMsgId     99
+#define  BeginSamplingMsgId  99
+#define  ClearSamplesMsgId   99
+#define  PingReturnDataMsgId 99
+#define  SampleDataMsgId     99
+#define SampleRateMsgId      99
+#define SonarParametersMsgId 99
+#define SendSamplesMsgId 99
+
 #endif

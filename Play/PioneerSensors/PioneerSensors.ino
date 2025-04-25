@@ -19,17 +19,8 @@ MessageHandlers messageHandler; // most app-specific processing
 
 //****************************************************************************
 
-void setup() 
+void OpenSocket ()
 {
-    //
-    // Standard initializations
-    //
-    //Serial.begin (9600);
-    //Serial.println ("PioneerSensors");
-    
-    OneTimeJobs.Clear ();
-    PeriodicJobs.Clear ();
-   
     socketPtr = new TcpClientRev2 ();
     messageHandler.Initialize (socketPtr, &PeriodicJobs, &OneTimeJobs);
     
@@ -42,13 +33,31 @@ void setup()
     
     TextMessage msg2 (readyText);
     socketPtr->write ((char *) &msg2, msg2.ByteCount ());   
+	
+	// char *fv = WiFi.firmwareVersion ();
+	
+    // TextMessage vmsg (fv);
+    // socketPtr->write ((char *) &vmsg, vmsg.ByteCount ());   
+}
+
+//****************************************************************************
+
+void setup() 
+{
+    Serial.begin (9600);
+    Serial.println ("PioneerSensors");
+    
+    OneTimeJobs.Clear ();
+    PeriodicJobs.Clear ();
+
+    OpenSocket ();
 }
 
 //***********************************************************************************
 
 #define MaxMessageBytes 256
 char messageBytes [MaxMessageBytes]; // messages received from PC
- 
+
 void loop() 
 {
     unsigned long now = millis ();
@@ -57,8 +66,9 @@ void loop()
     
     noInterrupts ();
     bool isConnected = socketPtr->IsConnected ();
+//    bool isConnected = true;// socketPtr->IsConnected ();
     interrupts ();
-    
+
     if (isConnected)
     {
         noInterrupts ();
@@ -69,31 +79,33 @@ void loop()
         {
             MessageHeader *header = (MessageHeader *) messageBytes;
 
-            //Serial.print ("PC MessageID ");
-            //Serial.println (header->MsgId);
+            Serial.print ("PC MessageID ");
+            Serial.println (header->MsgId);
 
             AcknowledgeMsg ack (header->SequenceNumber);
             socketPtr->write ((char *) &ack, ack.ByteCount ());
             
-            bool SendReady = true;
-
             switch (header->MsgId)
             {                
                 case KeepAliveMsgId: break;
                          
-                case StartSamplingMsgId: messageHandler.StartSamplingMsgHandler (messageBytes); SendReady = false; break;
-                case SendSamplesMsgId:   messageHandler.SendSamplesMsgHandler   (messageBytes); SendReady = false; break;
+                case StartSamplingMsgId: messageHandler.StartSamplingMsgHandler (messageBytes); break;
+                case SendSamplesMsgId:   messageHandler.SendSamplesMsgHandler   (messageBytes); break;
                 
                 default: 
-                      //Serial.print   ("Unexpected msg ID "); Serial.println (header->MsgId); 
-                      break;
+                {
+                    char text [80];
+                    sprintf (text, "Unexpected msg ID %d", header->MsgId);
+                    TextMessage msg (text); 
+                    socketPtr->write ((char *) &msg, msg.ByteCount ());   
+                }
+                break;
             }
 
-            if (SendReady == true)
-            {
-              ReadyMsg_Auto rdy;
-              socketPtr->write ((char *) &rdy, rdy.header.ByteCount);
-            }
+            Serial.println ("Sending ReadyMsg");
+
+            ReadyMsg_Auto rdy;
+            socketPtr->write ((char *) &rdy, rdy.header.ByteCount);
         }
     }
 }

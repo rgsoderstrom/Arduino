@@ -13,7 +13,7 @@
 
 #define null ((void *) 0)
 
-#define RealSensors
+//#define RealSensors
 
 const int MessageHandlers::PressurePin = 0; // analog pin connected to pressure transducer
 
@@ -104,7 +104,7 @@ void MessageHandlers::Initialize (TcpClientRev2 *sp, PeriodicJobQueue *pjq, JobQ
 
 void MessageHandlers::StartSamplingMsgHandler (byte msgBytes [])
 {
-    //Serial.println ("Start Sampling");  
+    Serial.println ("Start Sampling");  
     
     TextMessage msg2 ("Starting sampling");
     socketPtr->write ((char *) &msg2, msg2.ByteCount ());   
@@ -125,8 +125,8 @@ void MessageHandlers::StartSamplingMsgHandler (byte msgBytes [])
 
 void MessageHandlers::SendSamplesMsgHandler (byte msgBytes [])
 {
-    //Serial.print   ("Send ");
-    //Serial.println (get);
+    Serial.print   ("Send ");
+    Serial.println (get);
 
     int remaining = SampleBufferSize - get;
     

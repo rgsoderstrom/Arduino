@@ -15,7 +15,7 @@
 class MessageHandlers
 {
   public:
-    static const int SampleBufferSize = 234; // max is about 700
+    static const int SampleBufferSize = 50; // 234; // max is about 700
     
     MessageHandlers ();
     void Initialize (TcpClientRev2 *, PeriodicJobQueue *, JobQueue *);
