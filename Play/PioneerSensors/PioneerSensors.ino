@@ -42,6 +42,8 @@ void OpenSocket ()
 
 //****************************************************************************
 
+unsigned long lastMsgTime = 0;
+
 void setup() 
 {
     Serial.begin (9600);
@@ -51,6 +53,7 @@ void setup()
     PeriodicJobs.Clear ();
 
     OpenSocket ();
+    lastMsgTime = millis ();
 }
 
 //***********************************************************************************
@@ -64,9 +67,18 @@ void loop()
     PeriodicJobs.RunJobs (now);
     OneTimeJobs.RunJobs (now);
     
+    if (now - lastMsgTime > 10000)
+    {
+        //Serial.println ("socket");
+        socketPtr->disconnect ();
+        delete socketPtr;
+        OpenSocket ();
+        lastMsgTime = millis ();
+    }
+
+
     noInterrupts ();
     bool isConnected = socketPtr->IsConnected ();
-//    bool isConnected = true;// socketPtr->IsConnected ();
     interrupts ();
 
     if (isConnected)
@@ -77,6 +89,8 @@ void loop()
         
         if (isMessage)
         {
+            lastMsgTime = now;
+
             MessageHeader *header = (MessageHeader *) messageBytes;
 
             Serial.print ("PC MessageID ");
