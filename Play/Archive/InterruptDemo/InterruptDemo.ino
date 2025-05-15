@@ -3,28 +3,41 @@
 
 const int PhaseA = 2;
 const int PhaseB = 4;
+const int PressurePin = 0;
 const int interruptPin = PhaseA;
 
 volatile int interruptCounter = 0;
-int loopCounter = 0;
+//int loopCounter = 0;
 
 void setup() 
 {
   Serial.begin (9600);
-  pinMode (interruptPin, INPUT_PULLUP);
-  pinMode (PhaseB, INPUT_PULLUP);
+  Serial.println ("Starting");
+  pinMode (PhaseA, INPUT);
+  pinMode (PhaseB, INPUT);
   attachInterrupt (digitalPinToInterrupt (interruptPin), IntHandler, RISING);
-//  attachInterrupt (0, IntHandler, RISING);
+  interruptCounter = 0;
 }
+
+int wasIntCounter = 0;
 
 void loop() 
 {
-  Serial.print (loopCounter++);
-  Serial.print (" ");
-  noInterrupts ();
-  Serial.println (interruptCounter);
-  interrupts ();
-  delay (250);
+  if (wasIntCounter != interruptCounter)
+  {
+      wasIntCounter = interruptCounter;
+
+      int  degrees = interruptCounter >> 1;
+      bool half    = interruptCounter & 1;
+
+      if (half) 
+      {
+          Serial.print   (degrees);
+          Serial.println (".5");
+      }
+      else
+          Serial.println (degrees);
+  }
 }
 
 void IntHandler ()
