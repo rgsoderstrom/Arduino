@@ -23,7 +23,7 @@ void OpenSocket ()
 {
     socketPtr = new TcpClientRev2 ();
     messageHandler.Initialize (socketPtr, &PeriodicJobs, &OneTimeJobs);
-    
+
     // tell laptop that Arduino is ready
     ReadyMsg_Auto msg1;
     socketPtr->write ((char *) &msg1, msg1.header.ByteCount);
@@ -66,15 +66,18 @@ void loop()
     unsigned long now = millis ();
     PeriodicJobs.RunJobs (now);
     OneTimeJobs.RunJobs (now);
-    
-    if (now - lastMsgTime > 10000)
-    {
-        //Serial.println ("socket");
-        socketPtr->disconnect ();
-        delete socketPtr;
-        OpenSocket ();
-        lastMsgTime = millis ();
-    }
+
+    //if (messageHandler.SamplingInProgress == true)
+        //return;
+
+    // if (now - lastMsgTime > 10000)
+    // {
+    //     //Serial.println ("socket");
+    //     socketPtr->disconnect ();
+    //     delete socketPtr;
+    //     OpenSocket ();
+    //     lastMsgTime = millis ();
+    // }
 
 
     noInterrupts ();
@@ -93,8 +96,8 @@ void loop()
 
             MessageHeader *header = (MessageHeader *) messageBytes;
 
-            Serial.print ("PC MessageID ");
-            Serial.println (header->MsgId);
+            //Serial.print ("PC MessageID ");
+            //Serial.println (header->MsgId);
 
             AcknowledgeMsg ack (header->SequenceNumber);
             socketPtr->write ((char *) &ack, ack.ByteCount ());
@@ -116,7 +119,7 @@ void loop()
                 break;
             }
 
-            Serial.println ("Sending ReadyMsg");
+            //Serial.println ("Sending ReadyMsg");
 
             ReadyMsg_Auto rdy;
             socketPtr->write ((char *) &rdy, rdy.header.ByteCount);

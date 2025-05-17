@@ -15,10 +15,12 @@
 class MessageHandlers
 {
   public:
-    static const int SampleBufferSize = 140; // max is about 700
+    static const int SampleBufferSize = 800;
     
     MessageHandlers ();
     void Initialize (TcpClientRev2 *, PeriodicJobQueue *, JobQueue *);
+
+    bool SamplingInProgress;
 
     void StartSamplingMsgHandler (byte msgBytes []);
     void SendSamplesMsgHandler   (byte msgBytes []);
@@ -35,7 +37,7 @@ class MessageHandlers
 
     int PressureHist [SampleBufferSize];
     int AngleHist    [SampleBufferSize];
-    int TimeHist     [SampleBufferSize];
+    //int TimeHist     [SampleBufferSize];
     unsigned int put;
     unsigned int get;
    

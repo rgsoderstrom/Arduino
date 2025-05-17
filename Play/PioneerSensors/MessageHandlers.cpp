@@ -13,7 +13,7 @@
 
 #define null ((void *) 0)
 
-//#define RealSensors
+#define RealSensors
 
 const int MessageHandlers::PressurePin = 0; // analog pin connected to pressure transducer
 
@@ -24,10 +24,9 @@ unsigned int MessageHandlers::StartMillis;  // millis when sampling starts
 
 volatile int MessageHandlers::AngleCounts = 0; // accumulates shaft encoder pulse count
 
-int SampleTime = 50; // milliseconds between sensor reads
+int SampleTime = 5; //10; // 50; // milliseconds between sensor reads
 
 MessageHandlers* MessageHandlers::thisPtr = null;
-
 
 //********************************************************************************
 
@@ -35,9 +34,10 @@ char *MessageHandlers::RecordSensorsJobName = "Sample";
 
 void MessageHandlers::IntHandler ()
 {
+    int a = digitalRead (PhaseAPin) & 1;
     int b = digitalRead (PhaseBPin) & 1;
 
-    if (b == 1) thisPtr->AngleCounts++;
+    if (a == b) thisPtr->AngleCounts++;
     else        thisPtr->AngleCounts--;
 }
 
@@ -45,6 +45,9 @@ void MessageHandlers::IntHandler ()
 //
 // RecordSensors - periodic task to read and record sensors
 //
+
+//bool RecordingInProg = false;
+
 void MessageHandlers::RecordSensors (void)
 {
     int p = thisPtr->put++;
@@ -60,10 +63,10 @@ void MessageHandlers::RecordSensors (void)
     thisPtr->AngleHist    [p] = A++;
 #endif
 
-    thisPtr->TimeHist [p] = millis () - StartMillis;
-    
     if (thisPtr->put == SampleBufferSize)
     {
+        thisPtr->SamplingInProgress = false;
+
         detachInterrupt (digitalPinToInterrupt (interruptPin));
         thisPtr->periodicJobsPtr->Remove (RecordSensorsJobName);
 
@@ -94,27 +97,32 @@ void MessageHandlers::Initialize (TcpClientRev2 *sp, PeriodicJobQueue *pjq, JobQ
     socketPtr       = sp;
     periodicJobsPtr = pjq;
     jobsPtr         = jq;
+
+    SamplingInProgress = false;
     
-    pinMode (interruptPin, INPUT_PULLUP);
-    pinMode (PhaseAPin,    INPUT_PULLUP);
-    pinMode (PhaseBPin,    INPUT_PULLUP);
+    //pinMode (interruptPin, INPUT_PULLUP);
+    pinMode (PhaseAPin, INPUT); //   INPUT_PULLUP); --- external pull-ups added
+    pinMode (PhaseBPin, INPUT); //   INPUT_PULLUP);
 }
 
 //**************************************************************************
 
 void MessageHandlers::StartSamplingMsgHandler (byte msgBytes [])
 {
-    Serial.println ("Start Sampling");  
+    //Serial.println ("Start Sampling");  
+
+    SamplingInProgress = true;
     
     TextMessage msg2 ("Starting sampling");
     socketPtr->write ((char *) &msg2, msg2.ByteCount ());   
     
+    //RecordingInProg = false;
     AngleCounts = 0;
     put = 0;
     get = 0;  
 
 #ifdef RealSensors    
-    attachInterrupt (digitalPinToInterrupt (interruptPin), IntHandler, RISING);
+    attachInterrupt (digitalPinToInterrupt (interruptPin), IntHandler, CHANGE); // RISING);
 #endif
     
     periodicJobsPtr->Add (RecordSensors, NULL, RecordSensorsJobName, SampleTime);
@@ -125,8 +133,8 @@ void MessageHandlers::StartSamplingMsgHandler (byte msgBytes [])
 
 void MessageHandlers::SendSamplesMsgHandler (byte msgBytes [])
 {
-    Serial.print   ("Send ");
-    Serial.println (get);
+    //Serial.print   ("Send ");
+    //Serial.println (get);
 
     int remaining = SampleBufferSize - get;
     
@@ -142,7 +150,7 @@ void MessageHandlers::SendSamplesMsgHandler (byte msgBytes [])
     {
         sampleMsg.data.Pressure [i] = PressureHist [get];
         sampleMsg.data.Angle    [i] = AngleHist    [get];
-        sampleMsg.data.Time     [i] = TimeHist     [get];
+        sampleMsg.data.Time     [i] = get * SampleTime; // TimeHist     [get];
 
 //        if (i<3)
 //        {
