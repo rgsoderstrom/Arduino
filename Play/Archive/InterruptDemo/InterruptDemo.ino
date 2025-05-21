@@ -30,12 +30,23 @@ void loop()
 {
   if (wasIntCounter != interruptCounter)
   {
+    
+
     if (interruptCounter >= 360 * 4)
+    {
+      noInterrupts ();
       interruptCounter -= 360 * 4;
-    
+      interrupts ();
+    }
+
     if (interruptCounter < 0)
+    {
+      noInterrupts ();
       interruptCounter += 360 * 4;
-    
+      interrupts ();
+    }
+
+
     wasIntCounter = interruptCounter;
 
     int unsignedCount;
