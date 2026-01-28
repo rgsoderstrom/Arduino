@@ -37,8 +37,8 @@ void MessageHandlers::IntHandler ()
     int a = digitalRead (PhaseAPin) & 1;
     int b = digitalRead (PhaseBPin) & 1;
 
-    if (a == b) thisPtr->AngleCounts++;
-    else        thisPtr->AngleCounts--;
+    if (a == b) thisPtr->AngleCounts--;
+    else        thisPtr->AngleCounts++;
 }
 
 //******************************************************************
@@ -50,6 +50,16 @@ void MessageHandlers::IntHandler ()
 
 void MessageHandlers::RecordSensors (void)
 {
+    // don't start recording until flywheel has moved
+    // i.e. AngleCounts no longer 0
+    if (thisPtr->SamplingInProgress == false)
+        if (thisPtr->AngleCounts != 0)
+            thisPtr->SamplingInProgress = true;
+
+    if (thisPtr->SamplingInProgress == false)
+        return;
+
+    // if we get here, we're recording
     int p = thisPtr->put++;
     
 #ifdef RealSensors  
@@ -111,7 +121,7 @@ void MessageHandlers::StartSamplingMsgHandler (byte msgBytes [])
 {
     //Serial.println ("Start Sampling");  
 
-    SamplingInProgress = true;
+   // SamplingInProgress = true;
     
     TextMessage msg2 ("Starting sampling");
     socketPtr->write ((char *) &msg2, msg2.ByteCount ());   
