@@ -18,9 +18,10 @@ void IgnitionDisplay::Init ()
     //lcd.clear() ();
     lcd.print("Hello, TIM-6!");
 
-    strcpy (delay1Text,  "Delay1");
+    strcpy (delay1Text, "Delay1");
     strcpy (dwellText,  "Dwell");
     strcpy (sparksText, "Sparks");
+    strcpy (delay2Text, "Delay2");
 
 	delay1Millis = 10;
 	dwellMillis = 2;
@@ -80,20 +81,3 @@ void IgnitionDisplay::ShowSelection ()
     sprintf (obuf, "%2d", *data [select]);
     lcd.print (obuf);
 }    	
-        
-
-/**
-lcd.setCursor (0, 0);
-    lcd.print (select == DelayIndex ? "*" : " ");
-    lcd.setCursor (3, 0);
-    sprintf (obuf, "%2d", times [DelayIndex]);
-    obuf [2] = 0;
-    lcd.print (obuf);
-
-    lcd.setCursor (0, 1);
-    lcd.print (select == DwellIndex ? "*" : " ");
-    lcd.setCursor (3, 1);
-    sprintf (obuf, "%2d ", times [DwellIndex]);
-    obuf [2] = 0;
-    lcd.print (obuf);
-**/
