@@ -24,9 +24,9 @@ void IgnitionDisplay::Init ()
     strcpy (delay2Text, "Delay2");
 
 	delay1Millis = 10;
-	dwellMillis = 2;
-	sparkCount  = 3;
-	delay2Millis = 1000;
+	dwellMillis  = 2;
+	sparkCount   = 3;
+	delay2Millis = 100; 
 
     text [0] = delay1Text;
     text [1] = dwellText;
